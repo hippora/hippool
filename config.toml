@@ -1,8 +1,9 @@
 languageCode = "cn-zh"
-title = "Hippool"
+title = "河马的池塘"
 baseURL = "http://pool.idyi.net/"
-
 theme="hugo-phlat-theme"
+#ignoreFiles = [ "\\.foo"]
+
 
 [permalinks]
     post = "/:year/:month/:slug/"
@@ -16,4 +17,29 @@ theme="hugo-phlat-theme"
     author = "Hippo"
     keywords = ["Hippo", "linux", "docker", "oracle", "golang", "mysql","postgresql","ceph"]
     description = "记录一些本人的个人笔记"
+    google_analytics = "UA-92973579-1"
+#    google_adsense = "ca-pub-XXXXXXXX"
+    disqus = "hippool"
+
+# Header Menu
+[[menu.header]]
+    name = "Home"
+    weight = 1
+    url = "/"
+
+[[menu.header]]
+    name = "About"
+    weight = 2
+    url = "/about/"
+
+# Footer Menu
+[[menu.footer]]
+    name = "Privacy Policy"
+    weight = 1
+    url = "/privacy-policy/"
+
+[[menu.footer]]
+    name = "Sponsors"
+    weight = 2
+    url = "/sponsors/"
 
