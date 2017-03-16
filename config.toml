@@ -1,0 +1,19 @@
+languageCode = "cn-zh"
+title = "Hippool"
+baseURL = "http://pool.idyi.net/"
+
+theme="hugo-phlat-theme"
+
+[permalinks]
+    post = "/:year/:month/:slug/"
+    page = "/:slug/"
+
+[taxonomies]
+    tag = "tags"
+    category = "categories"
+
+[params]
+    author = "Hippo"
+    keywords = ["Hippo", "linux", "docker", "oracle", "golang", "mysql","postgresql","ceph"]
+    description = "记录一些本人的个人笔记"
+
