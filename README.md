@@ -3,7 +3,6 @@
 # install theme
 
 ```
-cd themes;git clone https://github.com/nraboy/hugo-phlat-theme
-cd hugo-phlat-theme;link ../theme.toml ./
+cd themes;git clone https://github.com/mmrath/hugo-bootstrap
 ```
 
