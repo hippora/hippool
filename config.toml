@@ -1,45 +1,48 @@
 languageCode = "cn-zh"
 title = "河马的池塘"
 baseURL = "http://pool.idyi.net/"
-theme="hugo-phlat-theme"
+theme="hugo-bootstrap"
 #ignoreFiles = [ "\\.foo"]
-
+google_analytics = "UA-92973579-1"
+disqusShortname = "hippool"
+author = "Hippo"
+copyright = "Copyright (c) 2017, Hippo; all rights reserved."
+canonifyurls = true
+paginate = 3
 
 [permalinks]
     post = "/:year/:month/:slug/"
     page = "/:slug/"
 
-[taxonomies]
-    tag = "tags"
-    category = "categories"
+#[taxonomies]
+#    tag = "tags"
+#    category = "categories"
 
 [params]
-    author = "Hippo"
     keywords = ["Hippo", "linux", "docker", "oracle", "golang", "mysql","postgresql","ceph"]
     description = "记录一些本人的个人笔记"
-    google_analytics = "UA-92973579-1"
-#    google_adsense = "ca-pub-XXXXXXXX"
-    disqus = "hippool"
 
-# Header Menu
-[[menu.header]]
-    name = "Home"
-    weight = 1
-    url = "/"
-
-[[menu.header]]
-    name = "About"
-    weight = 2
-    url = "/about/"
-
-# Footer Menu
-[[menu.footer]]
-    name = "Privacy Policy"
-    weight = 1
-    url = "/privacy-policy/"
+[[menu.main]]
+    name = "ABOUT ME"
+    pre = "<i class='fa fa-info-circle'></i>"
+    weight = 0
+    identifier = "about"
+    url = "/page/about"
 
 [[menu.footer]]
-    name = "Sponsors"
-    weight = 2
-    url = "/sponsors/"
+    name = "DISCLAIMER"
+    weight = 1
+    identifier = "disclaimer"
+    url = "/page/disclaimer/"
 
+[[menu.footer]]
+    name = "LICENSE"
+    weight = 2
+    identifier = "license"
+    url = "/page/license/"
+
+[params.widgets]
+    #recent_articles = true
+    categories = true
+    #tags = true
+    tag_cloud = true
