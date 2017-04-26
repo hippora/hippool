@@ -1,14 +1,14 @@
 languageCode = "cn-zh"
 title = "河马的池塘"
-baseURL = "http://pool.idyi.net/"
-theme="hugo-bootstrap"
+baseURL = "http://pool.idyi.net"
+theme="mainroad"
 #ignoreFiles = [ "\\.foo"]
-google_analytics = "UA-92973579-1"
+googleAnalytics = "UA-92973579-1"
 disqusShortname = "hippool"
 author = "Hippo"
 copyright = "Copyright (c) 2017, Hippo; all rights reserved."
 canonifyurls = true
-paginate = 3
+paginate = 10
 
 [permalinks]
     post = "/:year/:month/:slug/"
@@ -18,9 +18,18 @@ paginate = 3
 #    tag = "tags"
 #    category = "categories"
 
-[params]
-    keywords = ["Hippo", "linux", "docker", "oracle", "golang", "mysql","postgresql","ceph"]
-    description = "记录一些本人的个人笔记"
+[Author]
+    name = "John Doe"
+    bio = "John Doe's true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it."
+    avatar = "img/avatar.png"
+
+[Params]
+    subtitle = "Just another site" # Subtitle of your site
+    description = "河马的笔记"
+    opengraph = true
+    leftsidebar = false # Move sidebar to the left side if true
+    authorbox = true
+    post_navigation = true
 
 [[menu.main]]
     name = "ABOUT ME"
@@ -29,20 +38,12 @@ paginate = 3
     identifier = "about"
     url = "/page/about"
 
-[[menu.footer]]
-    name = "DISCLAIMER"
-    weight = 1
-    identifier = "disclaimer"
-    url = "/page/disclaimer/"
+[Params.widgets]
+    search = true # Enable "Search" widget
+    recent_articles = true # Enable "Recent articles" widget
+    recent_articles_num = 10 # Set the number of articles in the "Recent articles" widget
+    categories = true # Enable "Categories" widget
+    tags = true # Enable "Tags" widget
+    tags_counter = false # Enable counter for each tag in "Tags" widget (disabled by default)
 
-[[menu.footer]]
-    name = "LICENSE"
-    weight = 2
-    identifier = "license"
-    url = "/page/license/"
 
-[params.widgets]
-    #recent_articles = true
-    categories = true
-    #tags = true
-    tag_cloud = true
