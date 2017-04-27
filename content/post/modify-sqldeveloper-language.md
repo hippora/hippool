@@ -1,8 +1,8 @@
 +++
-categories = ["Oracle"]
+categories = ["oracle"]
 date = "2014-04-14T14:20:17+08:00"
 description = ""
-tags = ["oracle","sqldeveloper"]
+tags = ["sqldeveloper"]
 thumbnail = "img/oracle-logo.png"
 title = "修改sqldeveloper的语言"
 

@@ -2,7 +2,7 @@
 categories = ["postgresql"]
 date = "2015-02-10T16:29:22+08:00"
 description = ""
-tags = ["postgres","pg_dump"]
+tags = ["pg_dump"]
 thumbnail = ""
 title = "postgresql备份与恢复之SQL Dump"
 

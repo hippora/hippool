@@ -2,7 +2,7 @@
 categories = ["postgresql"]
 date = "2015-02-04T15:32:14+08:00"
 description = ""
-tags = ["postgres","pgAdmin3"]
+tags = ["pgAdmin"]
 thumbnail = ""
 title = "外部客户端连接postgresql相关设置"
 

@@ -2,7 +2,7 @@
 categories = ["postgresql"]
 date = "2015-02-09T16:17:00+08:00"
 description = ""
-tags = ["postgres","role"]
+tags = ["role"]
 thumbnail = ""
 title = "postgresql role(角色)"
 

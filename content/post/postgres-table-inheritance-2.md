@@ -2,7 +2,7 @@
 categories = ["postgresql"]
 date = "2015-02-24T17:48:39+08:00"
 description = ""
-tags = ["postgres","inheritance","table","partition"]
+tags = ["inheritance","partition table"]
 thumbnail = ""
 title = "postgresql中表的继承及分区表(二)"
 

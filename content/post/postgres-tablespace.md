@@ -2,7 +2,7 @@
 categories = ["postgresql"]
 date = "2015-02-06T16:07:09+08:00"
 description = ""
-tags = ["postgres","tablespace"]
+tags = ["tablespace"]
 thumbnail = ""
 title = "postgresql中表空间管理"
 

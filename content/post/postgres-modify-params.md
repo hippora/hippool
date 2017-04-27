@@ -2,7 +2,7 @@
 categories = ["postgresql"]
 date = "2015-02-05T15:42:52+08:00"
 description = ""
-tags = ["postgres"]
+tags = ["postgresql.conf"]
 thumbnail = "img/postgres/logo.png"
 title = "postgresql参数的设置"
 

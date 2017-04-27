@@ -2,7 +2,7 @@
 categories = ["postgresql"]
 date = "2015-02-06T15:55:01+08:00"
 description = ""
-tags = ["postgres","database"]
+tags = ["database"]
 thumbnail = ""
 title = "postgresql中database的管理"
 

@@ -2,7 +2,7 @@
 date = "2014-01-11T11:14:25+08:00"
 title = "Hello world!"
 categories = ["Other"]
-tags = ["blog"]
+tags = []
 thumbnail = ""
 
 +++

@@ -24,7 +24,7 @@ paginate = 10
     avatar = "img/avatar.jpg"
 
 [Params]
-    subtitle = "记录些技术笔记备忘" # Subtitle of your site
+    subtitle = "一些技术笔记" # Subtitle of your site
     description = "河马的笔记"
     opengraph = true
     leftsidebar = false # Move sidebar to the left side if true

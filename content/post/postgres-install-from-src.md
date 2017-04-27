@@ -2,7 +2,7 @@
 categories = ["postgresql"]
 date = "2015-02-04T15:17:34+08:00"
 description = ""
-tags = ["postgres"]
+tags = ["install"]
 thumbnail = ""
 title = "postgresql 在linux上的源码安装"
 

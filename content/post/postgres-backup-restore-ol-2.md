@@ -2,7 +2,7 @@
 categories = ["postgresql"]
 date = "2015-02-11T16:58:41+08:00"
 description = ""
-tags = ["postgres","backup","restore","wal"]
+tags = ["backup","restore","wal"]
 thumbnail = ""
 title = "postgresql在线备份与恢复(二)"
 
