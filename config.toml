@@ -19,12 +19,12 @@ paginate = 10
 #    category = "categories"
 
 [Author]
-    name = "John Doe"
-    bio = "John Doe's true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it."
-    avatar = "img/avatar.png"
+    name = "Hippo"
+    bio = "Hippo's true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it."
+    avatar = "img/avatar.jpg"
 
 [Params]
-    subtitle = "Just another site" # Subtitle of your site
+    subtitle = "记录些技术笔记备忘" # Subtitle of your site
     description = "河马的笔记"
     opengraph = true
     leftsidebar = false # Move sidebar to the left side if true
@@ -36,7 +36,7 @@ paginate = 10
     pre = "<i class='fa fa-info-circle'></i>"
     weight = 0
     identifier = "about"
-    url = "/page/about"
+    url = "/about"
 
 [Params.widgets]
     search = true # Enable "Search" widget

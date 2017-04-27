@@ -1,14 +1,16 @@
 +++
-#draft = true
-date = "2017-03-16T11:14:25+08:00"
-title = "Hello world"
-categories = ["Linux","Database"]
-tags = ["tag1","tag2"]
-author = "Hippo"
-description = "description hippo"
+date = "2014-01-11T11:14:25+08:00"
+title = "Hello world!"
+categories = ["Other"]
+tags = ["blog"]
+thumbnail = ""
 
 +++
 
+发现hugo还不错，就准备用hugo生成blog来用用。
 
+<!--more-->
 
-## 这是我的第一篇博客
+好像也没快速的办法啊，手动搬迁～
+
+//END
