@@ -9,9 +9,13 @@ description = "ceph安装中遇到的问题及解决方法"
 
 +++
 
+ceph安装中遇到的问题及解决方法
+
+<!--more-->
+
 # ceph安装中遇到的问题
 
-1. 机器重启后osd启动不了
+- 机器重启后osd启动不了
 
 查看日志/var/log/ceph/ceph-osd.4.log
 
@@ -45,7 +49,8 @@ KERNEL=="sd?10", SUBSYSTEM=="block", SUBSYSTEMS=="scsi", ATTRS{model}=="PERC H31
 > 需要根据自己硬件情况来写，使用udevadm info -a /dev/sd?? 寻找需要的信息
 
 
-2. too few PGs per OSD
+- too few PGs per OSD
+
 ```sh
 [root@store01 ~]# ceph -s
     cluster a67f5548-1451-419f-acba-4f5be1f7c27e
@@ -76,7 +81,7 @@ KERNEL=="sd?10", SUBSYSTEM=="block", SUBSYSTEMS=="scsi", ATTRS{model}=="PERC H31
 
 > 注意，pg只能改大，不能改小
 
-3. too many PGs per OSD
+- too many PGs per OSD
 
 ```sh
 [root@store01 ~]# ceph -s
@@ -105,7 +110,7 @@ rbd=rbd1：1400*25%=350，取256
 
 rbd2:	1400*50%=700，取1024。	256+256+1024=1536 < 2100
 
-4. Monitor clock skew detected
+- Monitor clock skew detected
 
 ```
 [root@store01 ~]# ceph -w
@@ -127,15 +132,13 @@ rbd2:	1400*50%=700，取1024。	256+256+1024=1536 < 2100
 2017-03-28 13:22:13.901971 mon.0 [INF] HEALTH_WARN; clock skew detected on mon.store03; Monitor clock skew detected
 ```
 
-
-
 貌似ceph对服务器时间同步要求挺高的（max 0.05s），那就搭个本地时间服务器好了
 
 ```
-[root@store01 ~]# vi /etc/ntp.conf
+[root@ntp-srv ~]# vi /etc/ntp.conf
 ...
 # Hosts on local network are less restricted.
-restrict 192.168.220.0 mask 255.255.255.0 nomodify notrap
+restrict 0.0.0.0 mask 0.0.0.0 nomodify notrap
 
 # Use public servers from the pool.ntp.org project.
 # Please consider joining the pool (http://www.pool.ntp.org/join.html).
@@ -144,25 +147,26 @@ server 1.cn.pool.ntp.org iburst
 server 2.cn.pool.ntp.org iburst
 server 3.cn.pool.ntp.org iburst
 ...
-[root@store01 ~]# cp /etc/ntp.conf ./
-[root@store01 ~]# vi ntp.conf
-...
-# Hosts on local network are less restricted.
-#restrict 192.168.220.0 mask 255.255.255.0 nomodify notrap
+```
 
+7台ceph 主机都指向这台ntp-srv
+
+```
+[root@store01 ~]# vi /etc/ntp.conf
+...
 # Use public servers from the pool.ntp.org project.
 # Please consider joining the pool (http://www.pool.ntp.org/join.html).
-server 192.168.220.101 prefer iburst
 #server 0.cn.pool.ntp.org iburst
 #server 1.cn.pool.ntp.org iburst
 #server 2.cn.pool.ntp.org iburst
 #server 3.cn.pool.ntp.org iburst
+server 192.168.230.10 iburst
 ...
-[root@store01 ~]# ansible all[1:] -m copy -a "src=ntp.conf dest=/etc/ mode=0644" -k
+[root@store01 ~]# ansible all[1:] -m copy -a "src=/etc/ntp.conf dest=/etc/ mode=0644" -k
 [root@store01 ~]# ansible all[1:] -m shell -a "systemctl stop ntpd" -k
-[root@store01 ~]# ansible all[1:] -m shell -a "ntpdate 192.168.220.101" -k
+[root@store01 ~]# ansible all[1:] -m shell -a "ntpdate 192.168.230.10" -k
 [root@store01 ~]# ansible all[1:] -m shell -a "hwclock -w" -k
 [root@store01 ~]# ansible all -m shell -a "systemctl start ntpd" -k
-
 ```
 
+//END

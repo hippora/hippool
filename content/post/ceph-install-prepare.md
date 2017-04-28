@@ -1,15 +1,12 @@
 +++
-#draft = true
-date = "2017-03-28T17:22:25+08:00"
-title = "ceph-install-1-prepare"
-categories = ["Ceph"]
-tags = ["ceph"]
-author = "Hippo"
-description = "ceph 安装前的一些准备工作"
+date = "2017-03-28T17:02:25+08:00"
+categories = ["ceph"]
+tags = ["install"]
+title = "ceph 安装前的准备工作"
 
 +++
 
-ceph 安装前的一些准备工作
+ceph(kraken) 安装前的准备工作
 
 <!--more-->
 
@@ -18,13 +15,12 @@ ceph 安装前的一些准备工作
 ## 简要说明
 
 主机配置：
-7台dell R720，16c32G。
-每台2块200G ssd、3块4T硬盘，留3个硬盘位将来扩充。
-2块ssd组raid1，除了装系统外，划6个10g的分区作为osd journal。
-操作系统centos 7.3最小化安装。
-6个千兆网卡，为了增加吞吐量和高可用做了team链路聚合。
 
-ceph软件装kraken
+- 7台dell R720，16c32G。
+- 每台2块200G ssd、3块4T硬盘，留3个硬盘位将来扩充。
+- 2块ssd组raid1，除了装系统外，划6个10g的分区作为osd journal。
+- 操作系统centos 7.3最小化安装。
+- 6个千兆网卡，为了增加吞吐量和高可用做了team链路聚合。
 
 > 为了节省成本，有些设置可能不太合理。
 
@@ -58,7 +54,7 @@ nmcli c up team1-em4
 nmcli c up team1
 ```
 
-> 我这里有7台，都要设置一下
+> 7台都设置一下
 
 ## 为了减轻工作量，装个ansible
 
@@ -83,14 +79,13 @@ vi /etc/hosts
 [root@store01 ~]# ansible all -m shell -a "yum install -y epel-release deltarpm yum-plugin-priorities;yum -y update" -k
 ```
 
-> 如换163源参考http://mirrors.163.com/.help/centos.html
 ## 关闭SELINUX
 
 ```sh
 [root@store01 ~]# ansible all -m shell -a "sed -i '7s/=.*$/=disabled/' /etc/selinux/config;setenforce 0" -k
 ```
 
-## 防火墙
+## 关闭防火墙
 
 ```sh
 [root@store01 ~]# ansible all -m shell -a "systemctl stop firewalld; systemctl disable firewalld" -k
@@ -138,7 +133,7 @@ visudo
 #Defaults requiretty
 ```
 
-> 注释掉这行，虽说ansible快，不过推荐使用visudo命令，那就每台机器执行一遍吧。
+> 推荐使用visudo命令，每台机器都执行一遍。
 
 ## osd journal分区
 

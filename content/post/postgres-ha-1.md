@@ -1,5 +1,5 @@
 +++
-categories = ["postgres"]
+categories = ["postgresql"]
 date = "2015-02-25T23:49:34+08:00"
 description = ""
 tags = ["standby","HA"]

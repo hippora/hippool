@@ -2,7 +2,7 @@
 categories = ["postgresql"]
 date = "2015-02-28T00:48:16+08:00"
 description = ""
-tags = ["datatype","date","time","timestamp"]
+tags = ["date","time","timestamp"]
 thumbnail = ""
 title = "postgresql数据类型之时间类型"
 
