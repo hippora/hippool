@@ -1,14 +1,14 @@
 languageCode = "cn-zh"
 title = "河马的池塘"
-baseURL = "http://pool.idyi.net"
+baseURL = "http://pool.idyi.net/"
 theme="mainroad"
 #ignoreFiles = [ "\\.foo"]
 googleAnalytics = "UA-92973579-1"
 disqusShortname = "hippool"
 author = "Hippo"
-copyright = "Copyright (c) 2017, Hippo; all rights reserved."
+copyright = "Copyright (c) 2014-2017, Hippo; all rights reserved."
 canonifyurls = true
-paginate = 10
+paginate = 20
 
 [permalinks]
     post = "/:year/:month/:slug/"
