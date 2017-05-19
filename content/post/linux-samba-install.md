@@ -164,7 +164,7 @@ if [ -z $GROUPNAME ]; then
 	exit 1;
 fi
 
-#######
+# =====
 
 useradd -M -g $GROUP -s /usr/sbin/nologin $USER
 echo -e "$PASSWD\n$PASSWD" | pdbedit -a $USER -t
@@ -196,6 +196,6 @@ rm -f tmp.txt
 
 有些windows系统，需要修改安全策略才能使用samba。账号密码正确却登录不了的可以设置试试：
 
-开始运行 secpol.msc -> 本地策略 -> 安全选项 -> 网络安全: LAN 管理器身份验证级别 -> 改成“网络安全: LAN 管理器身份验证级别”
+开始运行 secpol.msc -> 本地策略 -> 安全选项 -> 网络安全: LAN 管理器身份验证级别 -> 改成"发送 LM & NTLM - 如果协商一致，则使用 NTLMv2 会话安全"
 
 //END
