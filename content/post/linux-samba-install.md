@@ -172,7 +172,7 @@ echo -e "$PASSWD\n$PASSWD" | pdbedit -a $USER -t
 echo -e "Hi,$USER\n" > tmp.txt
 echo -e "你的网络共享账号已经创建成功！\n" >> tmp.txt
 echo '访问地址: \\192.168.1.200' >> tmp.txt
-echo '部门目录: \\192.168.1.200\'$GROUP >> tmp.txt
+echo '部门目录: \\192.168.1.200\'$GROUPNAME >> tmp.txt
 echo -e "账号：$USER\t密码：$PASSWD\n"  >> tmp.txt
 
 cat tmp.txt | mutt -s "Samba网络共享账号" $EMAIL
