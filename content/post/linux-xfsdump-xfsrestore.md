@@ -238,6 +238,7 @@ xfsinvutil -F -M ${MOUNT} `date -d "-15 day" +%m/%d/%Y`
 0 3 * * * /opt/backup_samba_xfsdump.sh
 ```
 
+> crontab装好后，执行的时候`LEVEL`可能是4，`level 0,1,2,3`先手动执行一下，不然会报错
 
 
 //END
