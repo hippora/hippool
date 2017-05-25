@@ -220,6 +220,8 @@ xfs.txt
 [root@samba-srv ~]# cat /opt/backup_samba_xfsdump.sh 
 #!/usr/bin/bash
 
+export PATH=$PATH:/usr/sbin
+
 LEVEL=`date +%w`
 
 MOUNT="/data/samba/legal"
@@ -239,6 +241,7 @@ xfsinvutil -F -M ${MOUNT} `date -d "-15 day" +%m/%d/%Y`
 ```
 
 > crontab装好后，执行的时候`LEVEL`可能是4，`level 0,1,2,3`先手动执行一下，不然会报错
+> xfsdump等命令默认在/usr/sbin目录下，crontab环境的PATH默认没有，所以设置下PATH。
 
 
 //END
