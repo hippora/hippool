@@ -22,8 +22,7 @@ mysql : 5.7.9
 
 
 ```
-# curl -L http://dev.mysql.com/get/mysql57-community-release-el7-7.noarch.rpm -o mysql57-community-release-el7-7.noarch.rpm
-# yum localinstall -y mysql57-community-release-el7-7.noarch.rpm
+# rpm -ivh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
 # yum install mysql-community-server
 # systemctl enable mysqld
 # systemctl start mysqld
