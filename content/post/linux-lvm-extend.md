@@ -136,6 +136,8 @@ Size of logical volume VolGroup/lv_root changed from 26.51 GiB (6786 extents) to
 Logical volume lv_root successfully resized
 ```
 
+> -L 参数直接跟大小比如+100G
+
 ## 更新下文件系统
 
 ```
@@ -147,6 +149,9 @@ Performing an on-line resize of /dev/mapper/VolGroup-lv_root to 14812160 (4k) bl
 
 The filesystem on /dev/mapper/VolGroup-lv_root is now 14812160 blocks long.
 ```
+
+> ext4 文件系统用`resize2fs`
+> xfs 文件系统用`xfs_growfs`
 
 ## 看看磁盘变大了没
 
