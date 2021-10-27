@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>ceph安装中遇到的问题 - 河马的池塘</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="ceph安装中遇到的问题及解决方法">
+		<meta property="og:title" content="ceph安装中遇到的问题" />
+<meta property="og:description" content="ceph安装中遇到的问题及解决方法" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://pool.idyi.net/ceph/ceph-install-post/" /><meta property="article:section" content="ceph" />
+<meta property="article:published_time" content="2017-03-28T18:05:51+08:00" />
+<meta property="article:modified_time" content="2017-03-28T18:05:51+08:00" />
+
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="http://pool.idyi.net/css/style.css">
+	
+
+	<link rel="shortcut icon" href="http://pool.idyi.net/favicon.ico">
+		
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-92973579-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="http://pool.idyi.net/" title="河马的池塘" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">河马的池塘</div>
+					<div class="logo__tagline">一些技术笔记</div>
+				</div>
+		</a>
+	</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="http://pool.idyi.net/about">
+				<i class='fa fa-info-circle'></i>
+				<span class="menu__text">ABOUT ME</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">ceph安装中遇到的问题</h1>
+			<div class="post__meta meta"><div class="meta__item-author meta__item">
+	<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2 0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class="meta__text">Hippo</span>
+</div>
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class="meta__text" datetime="2017-03-28T18:05:51&#43;08:00">2017-03-28</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg><span class="meta__text"><a class="meta__link" href="http://pool.idyi.net/categories/ceph/" rel="category">ceph</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<p>ceph安装中遇到的问题及解决方法</p>
+<h1 id="ceph安装中遇到的问题">ceph安装中遇到的问题</h1>
+<ul>
+<li>机器重启后osd启动不了</li>
+</ul>
+<p>查看日志/var/log/ceph/ceph-osd.4.log</p>
+<pre tabindex="0"><code>2017-03-27 13:14:03.548526 7fedc1a5e940  1 filestore(/var/lib/ceph/tmp/mnt.P8UBYK) FileStore::mkfs: omap fsid is already set to 4f2f36bc-4fb6-42a8-9572-824bbc4ec128
+2017-03-27 13:14:03.548546 7fedc1a5e940  1 filestore(/var/lib/ceph/tmp/mnt.P8UBYK) leveldb db exists/created
+2017-03-27 13:14:03.548735 7fedc1a5e940 -1 filestore(/var/lib/ceph/tmp/mnt.P8UBYK) mkjournal error creating journal on /var/lib/ceph/tmp/mnt.P8UBYK/journal: (13) Permission denied
+2017-03-27 13:14:03.548780 7fedc1a5e940 -1 OSD::mkfs: ObjectStore::mkfs failed with error -13
+2017-03-27 13:14:03.548928 7fedc1a5e940 -1  ** ERROR: error creating empty object store in /var/lib/ceph/tmp/mnt.P8UBYK: (13) Permission denied
+...
+
+[root@store02 ~]# ll /dev/sdd{5..10}
+brw-rw---- 1 root disk 8, 58 Mar 27 17:49 /dev/sdd10
+brw-rw---- 1 root disk 8, 53 Mar 28 16:44 /dev/sdd5
+brw-rw---- 1 root disk 8, 54 Mar 28 16:44 /dev/sdd6
+brw-rw---- 1 root disk 8, 55 Mar 28 16:44 /dev/sdd7
+brw-rw---- 1 root disk 8, 56 Mar 27 17:49 /dev/sdd8
+brw-rw---- 1 root disk 8, 57 Mar 27 17:49 /dev/sdd9
+</code></pre><blockquote>
+<p>由于我的journal分区是MBR的，ceph读不到gpt的一些信息，不能触发自动赋权，只能自己写个udev规则了。参考<code>/usr/lib/udev/rules.d/</code>目录下ceph相关规则。</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#f92672">[</span>root@store01 ~<span style="color:#f92672">]</span><span style="color:#75715e"># vi /etc/udev/rules.d/70-persistent-ceph-journal.rules</span>
+KERNEL<span style="color:#f92672">==</span><span style="color:#e6db74">&#34;sd?[5-9]&#34;</span>, SUBSYSTEM<span style="color:#f92672">==</span><span style="color:#e6db74">&#34;block&#34;</span>, SUBSYSTEMS<span style="color:#f92672">==</span><span style="color:#e6db74">&#34;scsi&#34;</span>, ATTRS<span style="color:#f92672">{</span>model<span style="color:#f92672">}==</span><span style="color:#e6db74">&#34;PERC H310&#34;</span>, OWNER<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ceph&#34;</span>, GROUP<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ceph&#34;</span>
+KERNEL<span style="color:#f92672">==</span><span style="color:#e6db74">&#34;sd?10&#34;</span>, SUBSYSTEM<span style="color:#f92672">==</span><span style="color:#e6db74">&#34;block&#34;</span>, SUBSYSTEMS<span style="color:#f92672">==</span><span style="color:#e6db74">&#34;scsi&#34;</span>, ATTRS<span style="color:#f92672">{</span>model<span style="color:#f92672">}==</span><span style="color:#e6db74">&#34;PERC H310&#34;</span>, OWNER<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ceph&#34;</span>, GROUP<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ceph&#34;</span>
+<span style="color:#f92672">[</span>root@store01 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ansible all -m copy -a &#34;src=http://pool.idyi.net/etc/udev/rules.d/70-persistent-ceph-journal.rules dest=/etc/udev/rules.d/ mode=0644&#34; -k</span>
+<span style="color:#f92672">[</span>root@store01 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ansible all -m shell -a &#34;udevadm trigger&#34; -k</span>
+</code></pre></div><blockquote>
+<p>需要根据自己硬件情况来写，使用udevadm info -a /dev/sd?? 寻找需要的信息</p>
+</blockquote>
+<ul>
+<li>too few PGs per OSD</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#f92672">[</span>root@store01 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ceph -s</span>
+    cluster a67f5548-1451-419f-acba-4f5be1f7c27e
+     health HEALTH_WARN
+            too few PGs per OSD <span style="color:#f92672">(</span><span style="color:#ae81ff">10</span> &lt; min 30<span style="color:#f92672">)</span>
+     monmap e2: <span style="color:#ae81ff">3</span> mons at <span style="color:#f92672">{</span>store02<span style="color:#f92672">=</span>192.168.220.102:6789/0,store03<span style="color:#f92672">=</span>192.168.220.103:6789/0,store04<span style="color:#f92672">=</span>192.168.220.104:6789/0<span style="color:#f92672">}</span>
+            election epoch 8, quorum 0,1,2 store02,store03,store04
+        mgr active: store04 standbys: store03, store02
+     osdmap e98: <span style="color:#ae81ff">18</span> osds: <span style="color:#ae81ff">18</span> up, <span style="color:#ae81ff">18</span> in
+            flags sortbitwise,require_jewel_osds,require_kraken_osds
+      pgmap v293: <span style="color:#ae81ff">64</span> pgs, <span style="color:#ae81ff">1</span> pools, <span style="color:#ae81ff">0</span> bytes data, <span style="color:#ae81ff">0</span> objects
+            <span style="color:#ae81ff">622</span> MB used, <span style="color:#ae81ff">67035</span> GB / <span style="color:#ae81ff">67035</span> GB avail
+                  <span style="color:#ae81ff">64</span> active+clean
+</code></pre></div><blockquote>
+<p>ceph.conf里<code>osd pool default size = 3</code> ，也就是每个pg有3个数据副本，平均分布在18个osd中。<code>64*3/18=10.67</code>，那要达到30的话，至少要设置 <code>18*30/3=180</code>,取最接近的2的幂次方就是256</p>
+<p>解决方法就是手动改一下</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#f92672">[</span>root@store01 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ceph osd lspools</span>
+<span style="color:#ae81ff">0</span> rbd,
+<span style="color:#f92672">[</span>root@store01 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ceph osd pool get rbd pg_num</span>
+<span style="color:#f92672">[</span>root@store01 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ceph osd pool get rbd pgp_num</span>
+<span style="color:#f92672">[</span>root@store01 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ceph osd pool set rbd pg_num 256</span>
+<span style="color:#f92672">[</span>root@store01 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ceph osd pool set rbd pgp_num 256</span>
+</code></pre></div><blockquote>
+<p>注意，pg只能改大，不能改小</p>
+</blockquote>
+<ul>
+<li>too many PGs per OSD</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#f92672">[</span>root@store01 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ceph -s</span>
+    cluster a67f5548-1451-419f-acba-4f5be1f7c27e
+     health HEALTH_WARN
+            too many PGs per OSD <span style="color:#f92672">(</span><span style="color:#ae81ff">329</span> &gt; max 300<span style="color:#f92672">)</span>
+     monmap e2: <span style="color:#ae81ff">3</span> mons at <span style="color:#f92672">{</span>store02<span style="color:#f92672">=</span>192.168.220.102:6789/0,store03<span style="color:#f92672">=</span>192.168.220.103:6789/0,store04<span style="color:#f92672">=</span>192.168.220.104:6789/0<span style="color:#f92672">}</span>
+            election epoch 20, quorum 0,1,2 store02,store03,store04
+        mgr active: store04 standbys: store02, store03
+     osdmap e654: <span style="color:#ae81ff">21</span> osds: <span style="color:#ae81ff">21</span> up, <span style="color:#ae81ff">21</span> in
+            flags sortbitwise,require_jewel_osds,require_kraken_osds
+      pgmap v2128: <span style="color:#ae81ff">2304</span> pgs, <span style="color:#ae81ff">2</span> pools, <span style="color:#ae81ff">0</span> bytes data, <span style="color:#ae81ff">0</span> objects
+            <span style="color:#ae81ff">1172</span> MB used, <span style="color:#ae81ff">78207</span> GB / <span style="color:#ae81ff">78208</span> GB avail
+                <span style="color:#ae81ff">2304</span> active+clean
+</code></pre></div><p>参考上面的，我们计算下要达到每个osd占有300个pg的话，需要设置：<code>21*300/3=2100</code>，也就是21个osd，副本为3的话，不能超过2100个pg。小于2100的最大2的幂是2048。</p>
+<blockquote>
+<p>官网有个计算pg的计算器：http://ceph.com/pgcalc/</p>
+</blockquote>
+<p>就我的案例来说：我们计划将来磁盘还要扩展一倍，每个osd取200pg比较合适。那计算的总<code>pg: 21*200/3=1400</code> ,不能超过<code>2100</code>,如果要分配到3个池，rbd，rbd1，rbd2，空间占比25%，25%，50%，</p>
+<p>rbd=rbd1：1400*25%=350，取256</p>
+<p>rbd2:	1400*50%=700，取1024。	256+256+1024=1536 &lt; 2100</p>
+<ul>
+<li>Monitor clock skew detected</li>
+</ul>
+<pre tabindex="0"><code>[root@store01 ~]# ceph -w
+    cluster a67f5548-1451-419f-acba-4f5be1f7c27e
+     health HEALTH_WARN
+            clock skew detected on mon.store03, mon.store04
+            Monitor clock skew detected
+     monmap e2: 3 mons at {store02=192.168.220.102:6789/0,store03=192.168.220.103:6789/0,store04=192.168.220.104:6789/0}
+            election epoch 32, quorum 0,1,2 store02,store03,store04
+        mgr active: store03 standbys: store04, store02
+     osdmap e1513: 21 osds: 21 up, 21 in
+            flags sortbitwise,require_jewel_osds,require_kraken_osds
+      pgmap v5211: 256 pgs, 1 pools, 0 bytes data, 0 objects
+            1237 MB used, 78207 GB / 78208 GB avail
+                 256 active+clean
+
+2017-03-28 13:19:13.920884 mon.0 [WRN] mon.2 192.168.220.104:6789/0 clock skew 0.0563359s &gt; max 0.05s
+2017-03-28 13:21:43.922252 mon.0 [WRN] mon.1 192.168.220.103:6789/0 clock skew 0.0552689s &gt; max 0.05s
+2017-03-28 13:22:13.901971 mon.0 [INF] HEALTH_WARN; clock skew detected on mon.store03; Monitor clock skew detected
+</code></pre><p>貌似ceph对服务器时间同步要求挺高的（max 0.05s），那就搭个本地时间服务器好了</p>
+<pre tabindex="0"><code>[root@ntp-srv ~]# vi /etc/ntp.conf
+...
+# Hosts on local network are less restricted.
+restrict 0.0.0.0 mask 0.0.0.0 nomodify notrap
+
+# Use public servers from the pool.ntp.org project.
+# Please consider joining the pool (http://www.pool.ntp.org/join.html).
+server 0.cn.pool.ntp.org iburst
+server 1.cn.pool.ntp.org iburst
+server 2.cn.pool.ntp.org iburst
+server 3.cn.pool.ntp.org iburst
+...
+</code></pre><p>7台ceph 主机都指向这台ntp-srv</p>
+<pre tabindex="0"><code>[root@store01 ~]# vi /etc/ntp.conf
+...
+# Use public servers from the pool.ntp.org project.
+# Please consider joining the pool (http://www.pool.ntp.org/join.html).
+#server 0.cn.pool.ntp.org iburst
+#server 1.cn.pool.ntp.org iburst
+#server 2.cn.pool.ntp.org iburst
+#server 3.cn.pool.ntp.org iburst
+server 192.168.230.10 iburst
+...
+[root@store01 ~]# ansible all[1:] -m copy -a &quot;src=http://pool.idyi.net/etc/ntp.conf dest=/etc/ mode=0644&quot; -k
+[root@store01 ~]# ansible all[1:] -m shell -a &quot;systemctl stop ntpd&quot; -k
+[root@store01 ~]# ansible all[1:] -m shell -a &quot;ntpdate 192.168.230.10&quot; -k
+[root@store01 ~]# ansible all[1:] -m shell -a &quot;hwclock -w&quot; -k
+[root@store01 ~]# ansible all -m shell -a &quot;systemctl start ntpd&quot; -k
+</code></pre><p>//END</p>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/ceph/" rel="tag">ceph</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="Hippo avatar" src="http://pool.idyi.net/img/avatar.jpg" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About Hippo</span>
+	</div>
+	<div class="authorbox__description">
+		Hippo&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+	</div>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="http://pool.idyi.net/ceph/ceph-install-do/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">ceph 安装</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="http://pool.idyi.net/ceph/ceph-add-osd/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">ceph手动添加osd</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hippool" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2021 河马的池塘.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="http://pool.idyi.net/js/menu.js"></script>
+</body>
+</html>

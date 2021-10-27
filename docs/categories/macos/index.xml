@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>macos on 河马的池塘</title>
+    <link>http://pool.idyi.net/categories/macos/</link>
+    <description>Recent content in macos on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Wed, 30 Apr 2014 14:45:23 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/categories/macos/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>macos扩展自带的词典</title>
+      <link>http://pool.idyi.net/macos-dict-extend/</link>
+      <pubDate>Wed, 30 Apr 2014 14:45:23 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/macos-dict-extend/</guid>
+      <description>&lt;p&gt;macos自带的词典有点少，不过可以自己扩展&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

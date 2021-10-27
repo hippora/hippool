@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>pgAdmin on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/pgadmin/</link>
+    <description>Recent content in pgAdmin on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Wed, 04 Feb 2015 15:32:14 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/pgadmin/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>外部客户端连接postgresql相关设置</title>
+      <link>http://pool.idyi.net/postgres/postgres-client-config/</link>
+      <pubDate>Wed, 04 Feb 2015 15:32:14 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-client-config/</guid>
+      <description>&lt;p&gt;用pgAdmin3来连接测试. 这样配置肯定不是生产库的配置.但是我们不能跌倒在入门上,先连上去再说:)&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

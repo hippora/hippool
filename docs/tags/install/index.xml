@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>install on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/install/</link>
+    <description>Recent content in install on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Sat, 29 Apr 2017 22:35:00 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/install/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>postgres 9.6安装</title>
+      <link>http://pool.idyi.net/postgres/postgres-install-yum/</link>
+      <pubDate>Sat, 29 Apr 2017 22:35:00 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-install-yum/</guid>
+      <description>&lt;p&gt;使用yum安装&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>ceph 安装</title>
+      <link>http://pool.idyi.net/ceph/ceph-install-do/</link>
+      <pubDate>Tue, 28 Mar 2017 17:22:25 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/ceph/ceph-install-do/</guid>
+      <description>&lt;p&gt;ceph 集群安装开始&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>ceph 安装前的准备工作</title>
+      <link>http://pool.idyi.net/ceph/ceph-install-prepare/</link>
+      <pubDate>Tue, 28 Mar 2017 17:02:25 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/ceph/ceph-install-prepare/</guid>
+      <description>&lt;p&gt;ceph(kraken) 安装前的准备工作&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>docker安装</title>
+      <link>http://pool.idyi.net/docker/docker-install-1.11.1/</link>
+      <pubDate>Fri, 20 May 2016 11:17:37 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-install-1.11.1/</guid>
+      <description>&lt;p&gt;docker 1.11.1&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>mysql 5.7.9 安装</title>
+      <link>http://pool.idyi.net/mysql/mysql-install-yum/</link>
+      <pubDate>Thu, 22 Oct 2015 10:39:29 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/mysql/mysql-install-yum/</guid>
+      <description>&lt;p&gt;centos 7 下 mysql 5.7.9 安装&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>postgresql 在linux上的源码安装</title>
+      <link>http://pool.idyi.net/postgres/postgres-install-from-src/</link>
+      <pubDate>Wed, 04 Feb 2015 15:17:34 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-install-from-src/</guid>
+      <description>&lt;p&gt;学习postgresql 记录在centos上安装postgresql,使用源码编译.数据库版本是9.4.0 编译使用默认configure选项&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

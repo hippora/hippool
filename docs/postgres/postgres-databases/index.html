@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>postgresql中database的管理 - 河马的池塘</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:title" content="postgresql中database的管理" />
+<meta property="og:description" content="学习postgresql中数据库的概念,什么是template databases,如何创建和删除database,database相关的配置及其他" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://pool.idyi.net/postgres/postgres-databases/" /><meta property="article:section" content="postgres" />
+<meta property="article:published_time" content="2015-02-06T15:55:01+08:00" />
+<meta property="article:modified_time" content="2015-02-06T15:55:01+08:00" />
+
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="http://pool.idyi.net/css/style.css">
+	
+
+	<link rel="shortcut icon" href="http://pool.idyi.net/favicon.ico">
+		
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-92973579-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="http://pool.idyi.net/" title="河马的池塘" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">河马的池塘</div>
+					<div class="logo__tagline">一些技术笔记</div>
+				</div>
+		</a>
+	</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="http://pool.idyi.net/about">
+				<i class='fa fa-info-circle'></i>
+				<span class="menu__text">ABOUT ME</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">postgresql中database的管理</h1>
+			<div class="post__meta meta"><div class="meta__item-author meta__item">
+	<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2 0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class="meta__text">Hippo</span>
+</div>
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class="meta__text" datetime="2015-02-06T15:55:01&#43;08:00">2015-02-06</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg><span class="meta__text"><a class="meta__link" href="http://pool.idyi.net/categories/postgresql/" rel="category">postgresql</a>
+	</span>
+</div></div>
+		</header>
+		
+<div class="post__toc toc">
+	<div class="toc__title">Page content</div>
+	<div class="toc__menu">
+		<nav id="TableOfContents">
+  <ul>
+    <li><a href="#pg中database的概念">PG中database的概念</a></li>
+    <li><a href="#创建db">创建DB</a></li>
+    <li><a href="#template-databases">Template databases</a>
+      <ul>
+        <li><a href="#建一点测试数据已把之前的数据库删除">建一点测试数据(已把之前的数据库删除)</a></li>
+        <li><a href="#测试下普通数据库作为模板">测试下普通数据库作为模板</a></li>
+        <li><a href="#测试有session连接着复制">测试有session连接着复制</a></li>
+        <li><a href="#把数据库设置为模板">把数据库设置为模板</a></li>
+        <li><a href="#设置不让session登录">设置不让session登录</a></li>
+        <li><a href="#操作template1">操作template1</a></li>
+        <li><a href="#模板数据库总结">模板数据库总结</a></li>
+      </ul>
+    </li>
+    <li><a href="#删除db">删除DB</a></li>
+  </ul>
+</nav>
+	</div>
+</div><div class="content post__content clearfix">
+			<p>学习postgresql中数据库的概念,什么是template databases,如何创建和删除database,database相关的配置及其他</p>
+<h2 id="pg中database的概念">PG中database的概念</h2>
+<p>不像oracle中一个或多个实例只管理一个DB,在PG中一个实例下有一个database cluster,可以管理多个DB,一个DB下有多个schema,schema下有各种数据库对象如table,index等等.</p>
+<p><em>有些系统视图比如pg_database等属于cluster层级</em></p>
+<h2 id="创建db">创建DB</h2>
+<p>先检查下目前的数据库,2种方法</p>
+<pre tabindex="0"><code>postgres=# select datname from pg_database;
+  datname
+-----------
+ template1
+ template0
+ postgres
+(3 rows)
+
+postgres=# \l
+                                  List of databases
+   Name    |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges
+-----------+----------+----------+-------------+-------------+-----------------------
+ postgres  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ template0 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+           |          |          |             |             | postgres=CTc/postgres
+ template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+           |          |          |             |             | postgres=CTc/postgres
+(3 rows)
+</code></pre><p>创建一个DB,不指定owner,默认的owner就是当前用户.</p>
+<pre tabindex="0"><code>postgres=# create database db01;
+CREATE DATABASE
+postgres=# create database db02 owner hippo;
+CREATE DATABASE
+postgres=# \q
+[postgres@fnddb ~]$ createdb -O hippo db03
+[postgres@fnddb ~]$ psql
+psql (9.4.0)
+Type &quot;help&quot; for help.
+
+postgres=# \l
+                                  List of databases
+   Name    |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges
+-----------+----------+----------+-------------+-------------+-----------------------
+ db01      | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ db02      | hippo    | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ db03      | hippo    | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ postgres  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ template0 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+           |          |          |             |             | postgres=CTc/postgres
+ template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+           |          |          |             |             | postgres=CTc/postgres
+(6 rows)
+</code></pre><h2 id="template-databases">Template databases</h2>
+<h3 id="建一点测试数据已把之前的数据库删除">建一点测试数据(已把之前的数据库删除)</h3>
+<pre tabindex="0"><code>postgres=# \c
+You are now connected to database &quot;postgres&quot; as user &quot;postgres&quot;.
+postgres=# create role user1 login createdb;
+CREATE ROLE
+postgres=# create role user2 login createdb;
+CREATE ROLE
+postgres=# create database database1 owner user1;
+CREATE DATABASE
+postgres=# create database database2 owner user2;
+CREATE DATABASE
+</code></pre><h3 id="测试下普通数据库作为模板">测试下普通数据库作为模板</h3>
+<pre tabindex="0"><code>postgres=# \c postgres user1;
+You are now connected to database &quot;postgres&quot; as user &quot;user1&quot;.
+postgres=&gt; create database db01 template database1;
+CREATE DATABASE
+postgres=&gt; create database db02 template database2;
+ERROR:  permission denied to copy database &quot;database2&quot;
+postgres=&gt; \c database1 user1 --当前会话连接在上面也可以复制
+You are now connected to database &quot;database1&quot; as user &quot;user1&quot;.
+database1=&gt; create database db03 template database1;
+CREATE DATABASE
+</code></pre><p>只有owner和superuser可以复制普通数据库</p>
+<h3 id="测试有session连接着复制">测试有session连接着复制</h3>
+<p>新开个新session2:</p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ psql -U hippo database1
+</code></pre><p>在session1中执行:</p>
+<pre tabindex="0"><code>database1=&gt; create database db04 template database1;
+ERROR:  source database &quot;database1&quot; is being accessed by other users
+DETAIL:  There is 1 other session using the database.
+</code></pre><p>有session连接着的数据库作为数据源不能复制</p>
+<h3 id="把数据库设置为模板">把数据库设置为模板</h3>
+<pre tabindex="0"><code>database1=&gt; \c postgres postgres
+You are now connected to database &quot;postgres&quot; as user &quot;postgres&quot;.
+postgres=# update pg_database set datistemplate='t' where datname='database2';
+UPDATE 1
+postgres=# \c database1 user1
+You are now connected to database &quot;database1&quot; as user &quot;user1&quot;.
+database1=&gt; create database db05 template database2;
+CREATE DATABASE
+</code></pre><p>设置成模板后,非owner用户也可以复制.</p>
+<h3 id="设置不让session登录">设置不让session登录</h3>
+<pre tabindex="0"><code>postgres=# select datname,datistemplate,datallowconn from pg_database;
+  datname  | datistemplate | datallowconn
+-----------+---------------+--------------
+ template1 | t             | t
+ template0 | t             | f
+ postgres  | f             | t
+ db01      | f             | t
+ db03      | f             | t
+ database1 | f             | t
+ database2 | t             | t
+ db05      | f             | t
+(8 rows)
+
+postgres=# update pg_database set datallowconn='f' where datname='database2';
+UPDATE 1
+postgres=# \c database2
+FATAL:  database &quot;database2&quot; is not currently accepting connections
+Previous connection kept
+</code></pre><h3 id="操作template1">操作template1</h3>
+<pre tabindex="0"><code>postgres-# \c template1 postgres
+You are now connected to database &quot;template1&quot; as user &quot;postgres&quot;.
+template1-# \d test_table
+Did not find any relation named &quot;test_table&quot;.
+template1=# create table test_table(id varchar(10));
+CREATE TABLE
+template1=# insert into test_table values('test data');
+INSERT 0 1
+template1=# create database db06 ;
+CREATE DATABASE
+template1=# \c db06
+You are now connected to database &quot;db06&quot; as user &quot;postgres&quot;.
+db06=# select * from test_table;
+    id
+-----------
+ test data
+(1 row)
+</code></pre><p>模板中的对象及数据一起带过来了.</p>
+<h3 id="模板数据库总结">模板数据库总结</h3>
+<p>初始数据库有三个.postgres,template0,template1.(见上查询结果)
+这是创建database cluster时创建的.</p>
+<ul>
+<li>
+<p><code>create database</code> 默认使用template1来克隆新数据库,因此如果对template1进行了修改,修改就会出现在新建的数据库中.</p>
+</li>
+<li>
+<p>template0与template1是一模一样的,只是官方建议不要动这个,原因是恢复pg_dump备份时,会基于此数据库来还原,并且如果template1被不小心弄乱了.还可以通过template0来再创建一个.</p>
+</li>
+<li>
+<p>postgres是默认登录的数据库,也是初始时通过template1创建的.</p>
+</li>
+<li>
+<p>模板可以被任何有权限的用户复制,非模板数据库只能由owner和superuser复制.</p>
+</li>
+<li>
+<p>有用户连接的数据库不能作为数据源来复制</p>
+</li>
+<li>
+<p>可以通过修改pg_database中相应标志,来设置模板与否,能否连接,字符集等.</p>
+</li>
+</ul>
+<h2 id="删除db">删除DB</h2>
+<pre tabindex="0"><code>db06=# \c postgres hippo;
+You are now connected to database &quot;postgres&quot; as user &quot;hippo&quot;.
+postgres=&gt; drop database db01;
+ERROR:  must be owner of database db01
+postgres=&gt; \c postgres user1
+You are now connected to database &quot;postgres&quot; as user &quot;user1&quot;.
+postgres=&gt; drop database db01;
+DROP DATABASE
+</code></pre><p>数据库只能由owner或superuser删除,删除后所有此数据库下的对象一并删除不能撤销.</p>
+<p>shell命令删除:</p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ dropdb db06
+</code></pre><p>//END</p>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/database/" rel="tag">database</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="Hippo avatar" src="http://pool.idyi.net/img/avatar.jpg" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About Hippo</span>
+	</div>
+	<div class="authorbox__description">
+		Hippo&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+	</div>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="http://pool.idyi.net/postgres/postgres-modify-params/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">postgresql参数的设置</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="http://pool.idyi.net/postgres/postgres-database/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">postgresql中database的管理</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hippool" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2021 河马的池塘.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="http://pool.idyi.net/js/menu.js"></script>
+</body>
+</html>

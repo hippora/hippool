@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>docker on 河马的池塘</title>
+    <link>http://pool.idyi.net/categories/docker/</link>
+    <description>Recent content in docker on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Wed, 01 Jun 2016 11:48:39 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/categories/docker/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Docker registry 存储到aliyun oss</title>
+      <link>http://pool.idyi.net/docker/docker-registry-aliyun/</link>
+      <pubDate>Wed, 01 Jun 2016 11:48:39 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-registry-aliyun/</guid>
+      <description>&lt;p&gt;Docker registry 存储到aliyun oss&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Docker registry</title>
+      <link>http://pool.idyi.net/docker/docker-registry/</link>
+      <pubDate>Wed, 01 Jun 2016 11:47:07 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-registry/</guid>
+      <description>&lt;p&gt;Docker registry&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>docker daemon的HTTP socket TLS加密连接</title>
+      <link>http://pool.idyi.net/docker/docker-tls/</link>
+      <pubDate>Fri, 27 May 2016 11:41:37 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-tls/</guid>
+      <description>&lt;p&gt;默认docker daemon是通过非网络的unix socket监听客户端连接的.如果我们需要客户端通过网络来安全的连接到docker daemon,则因该配置TLS加密方式,通过http的方式来连接.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>docker的devicemapper 最佳实践</title>
+      <link>http://pool.idyi.net/docker/docker-devicemapper/</link>
+      <pubDate>Thu, 26 May 2016 11:39:14 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-devicemapper/</guid>
+      <description>&lt;p&gt;devicemapper生产环境要使用driect-lvm模式&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>docker选择存储驱动器</title>
+      <link>http://pool.idyi.net/docker/docker-storage-driver/</link>
+      <pubDate>Wed, 25 May 2016 11:37:09 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-storage-driver/</guid>
+      <description>&lt;p&gt;docker Storage driver&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>docker镜像,容器和存储驱动</title>
+      <link>http://pool.idyi.net/docker/docker-image-container-storagedriver/</link>
+      <pubDate>Wed, 25 May 2016 11:31:46 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-image-container-storagedriver/</guid>
+      <description>&lt;p&gt;这篇都是概念性的.主要就是官方文档的笔记.更详细的请参考官方文档.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>docker管理容器的数据(VOLUMNS)</title>
+      <link>http://pool.idyi.net/docker/docker-volumns/</link>
+      <pubDate>Mon, 23 May 2016 11:28:14 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-volumns/</guid>
+      <description>&lt;p&gt;可以通过两种方式管理容器中的数据,数据卷(Data Volumns),数据卷容器(Data Volumns containers)&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>docker的网络</title>
+      <link>http://pool.idyi.net/docker/docker-network/</link>
+      <pubDate>Fri, 20 May 2016 11:25:10 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-network/</guid>
+      <description>&lt;p&gt;docker的网络&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>制作自己的docker镜像(二)</title>
+      <link>http://pool.idyi.net/docker/docker-image-custom-2/</link>
+      <pubDate>Fri, 20 May 2016 11:23:11 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-image-custom-2/</guid>
+      <description>&lt;p&gt;使用dockerfile&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>制作自己的docker镜像(一)</title>
+      <link>http://pool.idyi.net/docker/docker-image-custom-1/</link>
+      <pubDate>Fri, 20 May 2016 11:20:25 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-image-custom-1/</guid>
+      <description>&lt;p&gt;手动制作docker镜像&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>docker安装</title>
+      <link>http://pool.idyi.net/docker/docker-install-1.11.1/</link>
+      <pubDate>Fri, 20 May 2016 11:17:37 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-install-1.11.1/</guid>
+      <description>&lt;p&gt;docker 1.11.1&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>etcd 2.0 rolling upgrade 升级到 etcd 2.1</title>
+      <link>http://pool.idyi.net/docker/docker-etcd-upgrade/</link>
+      <pubDate>Fri, 31 Jul 2015 10:22:54 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-etcd-upgrade/</guid>
+      <description>&lt;p&gt;etcd2.0开始支持rolling update 正好手上有个测试环境,升级一下做个记录&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>network on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/network/</link>
+    <description>Recent content in network on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Fri, 20 May 2016 11:25:10 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/network/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>docker的网络</title>
+      <link>http://pool.idyi.net/docker/docker-network/</link>
+      <pubDate>Fri, 20 May 2016 11:25:10 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-network/</guid>
+      <description>&lt;p&gt;docker的网络&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

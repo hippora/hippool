@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>postgresql高可用性之备库(一) - 河马的池塘</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:title" content="postgresql高可用性之备库(一)" />
+<meta property="og:description" content="这篇主要记录一下搭建基于WAL归档的备库. (Log-Shipping Standby Servers)
+有点类似于oracle 的dataguard.主要作用是当主库宕机后,可以立刻激活备库,使备库变成主库." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://pool.idyi.net/postgres/postgres-ha-1/" /><meta property="article:section" content="postgres" />
+<meta property="article:published_time" content="2015-02-25T23:49:34+08:00" />
+<meta property="article:modified_time" content="2015-02-25T23:49:34+08:00" />
+
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="http://pool.idyi.net/css/style.css">
+	
+
+	<link rel="shortcut icon" href="http://pool.idyi.net/favicon.ico">
+		
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-92973579-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="http://pool.idyi.net/" title="河马的池塘" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">河马的池塘</div>
+					<div class="logo__tagline">一些技术笔记</div>
+				</div>
+		</a>
+	</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="http://pool.idyi.net/about">
+				<i class='fa fa-info-circle'></i>
+				<span class="menu__text">ABOUT ME</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">postgresql高可用性之备库(一)</h1>
+			<div class="post__meta meta"><div class="meta__item-author meta__item">
+	<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2 0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class="meta__text">Hippo</span>
+</div>
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class="meta__text" datetime="2015-02-25T23:49:34&#43;08:00">2015-02-25</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg><span class="meta__text"><a class="meta__link" href="http://pool.idyi.net/categories/postgresql/" rel="category">postgresql</a>
+	</span>
+</div></div>
+		</header>
+		
+<div class="post__toc toc">
+	<div class="toc__title">Page content</div>
+	<div class="toc__menu">
+		<nav id="TableOfContents">
+  <ul>
+    <li><a href="#服务器说明">服务器说明</a></li>
+    <li><a href="#说明">说明</a></li>
+    <li><a href="#linux环境配置">linux环境配置</a>
+      <ul>
+        <li><a href="#配置主机信任">配置主机信任</a></li>
+      </ul>
+    </li>
+    <li><a href="#pg-主库配置">PG 主库配置</a>
+      <ul>
+        <li><a href="#归档目录修改">归档目录修改</a></li>
+        <li><a href="#允许备库机使用pg_basebackup">允许备库机使用pg_basebackup</a></li>
+      </ul>
+    </li>
+    <li><a href="#对主库做一个基础备份">对主库做一个基础备份</a></li>
+    <li><a href="#备库配置">备库配置</a>
+      <ul>
+        <li><a href="#配置recoveryconf">配置recovery.conf</a></li>
+        <li><a href="#启动备库检查日志">启动备库检查日志</a></li>
+        <li><a href="#检查备库进程">检查备库进程</a></li>
+        <li><a href="#简单测试">简单测试</a></li>
+        <li><a href="#备库设置成只读库hot_standby">备库设置成只读库(hot_standby)</a></li>
+      </ul>
+    </li>
+    <li><a href="#总结">总结</a></li>
+  </ul>
+</nav>
+	</div>
+</div><div class="content post__content clearfix">
+			<p>这篇主要记录一下搭建基于WAL归档的备库. (Log-Shipping Standby Servers)</p>
+<p>有点类似于oracle 的dataguard.主要作用是当主库宕机后,可以立刻激活备库,使备库变成主库.</p>
+<h2 id="服务器说明">服务器说明</h2>
+<ul>
+<li>主库fnddb: 192.168.10.74</li>
+<li>备库vm2: 192.168.10.72</li>
+<li>两边postgresql服务程序版本一致.</li>
+</ul>
+<p>主库已配置好归档模式,参考之前的文章<a href="http://pool.idyi.net/2015/02/postgresql%E5%9C%A8%E7%BA%BF%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%81%A2%E5%A4%8D%E4%B8%80/">在线备份与恢复</a></p>
+<h2 id="说明">说明</h2>
+<p>由于备库是不断应用主库的WAL日志来保持备库不断地更新.所以主库的归档地址需要被备库访问的到.
+为了达成这种目地,可以有多种方式方法.</p>
+<ul>
+<li>归档目录放置在共享磁盘上</li>
+<li>归档时直接传输到NAS上或者直接传输至备库服务器上.</li>
+</ul>
+<h2 id="linux环境配置">linux环境配置</h2>
+<h3 id="配置主机信任">配置主机信任</h3>
+<p>由于我需要通过scp命令直接将WAL归档到备库服务器上.</p>
+<p><em>备库</em></p>
+<pre tabindex="0"><code>[postgres@vm2 ~]$ ssh-keygen -t rsa
+......
+[postgres@vm2 ~]$ cd .ssh
+</code></pre><p><em>主库</em></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ ssh-keygen -t rsa
+......
+[postgres@fnddb ~]$ cd .ssh
+[postgres@fnddb .ssh]$ scp id_rsa.pub 192.168.10.72:/home/postgres/.ssh/authorized_keys
+</code></pre><p><em>备库</em></p>
+<pre tabindex="0"><code>[postgres@vm2 .ssh]$ cat id_rsa.pub &gt;&gt; authorized_keys
+[postgres@vm2 .ssh]$ scp authorized_keys 192.168.10.74:/home/postgres/.ssh/
+</code></pre><p><em>测试-在两边执行无需输入密码</em></p>
+<pre tabindex="0"><code>[postgres@fnddb .ssh]$ ssh 192.168.10.72 date    --主库
+Thu Feb 26 22:41:20 CST 2015
+[postgres@vm2 .ssh]$ ssh 192.168.10.74 date    --备库
+Thu Feb 26 22:40:55 CST 2015
+</code></pre><h2 id="pg-主库配置">PG 主库配置</h2>
+<h3 id="归档目录修改">归档目录修改</h3>
+<p><em>我们在备库上将归档目录建好</em></p>
+<pre tabindex="0"><code>[postgres@vm2 pgsql]$ pwd
+/var/lib/pgsql
+[postgres@vm2 pgsql]$ mkdir pg_archive
+</code></pre><p><em>修改主库归档命令</em></p>
+<pre tabindex="0"><code>[postgres@fnddb data]$ vi $PGDATA/postgresql.conf
+#archive_command = 'test ! -f /var/lib/pgsql/pg_archive/%f &amp;&amp; cp %p /var/lib/pgsql/pg_archive/%f'        # command to use to archive a logfile segment
+archive_command = 'ssh 192.168.10.72 test ! -f /var/lib/pgsql/pg_archive/%f &amp;&amp; scp %p 192.168.10.72:/var/lib/pgsql/pg_archive/%f'
+:wq
+[postgres@fnddb data]$ pg_ctl reload
+[postgres@fnddb data]$ psql -c &quot;select pg_switch_xlog()&quot;
+</code></pre><p><em>备库上检查归档目录是否正确归档</em></p>
+<pre tabindex="0"><code>[postgres@vm2 pg_archive]$ ls
+000000030000000000000020
+</code></pre><blockquote>
+<p>先设置归档到备库上,可以防止待会做基础备份作为备库后,所需要的归档还在主库上,增加额外操作</p>
+</blockquote>
+<h3 id="允许备库机使用pg_basebackup">允许备库机使用pg_basebackup</h3>
+<pre tabindex="0"><code>[postgres@fnddb data]$ vi pg_hba.conf
+......
+host    replication     postgres        192.168.10.72/32        md5
+[postgres@fnddb data]$ vi postgresql.conf
+......
+listen_addresses = '*'
+max_wal_senders = 1
+[postgres@fnddb data]$ pg_ctl reload
+server signaled
+</code></pre><h2 id="对主库做一个基础备份">对主库做一个基础备份</h2>
+<p><strong>在备库上直接通过pg_basebackup操作,目录结构跟主库结构保持一致</strong></p>
+<p><em>主库上检查目录并在备库上建立</em></p>
+<pre tabindex="0"><code>[postgres@fnddb data]$ psql -c &quot;\db&quot;
+               List of tablespaces
+    Name    |  Owner   |        Location
+------------+----------+-------------------------
+ pg_default | postgres |
+ pg_global  | postgres |
+ tsdata     | postgres | /var/lib/pgsql/tsdata
+ tsdata02   | postgres | /var/lib/pgsql/tsdata02
+(4 rows)
+
+[postgres@fnddb data]$ echo $PGDATA
+/var/lib/pgsql/data
+</code></pre><p><em>备库上建立相应目录,过程略</em></p>
+<pre tabindex="0"><code>[postgres@vm2 pgsql]$ ls
+data  pg_archive  tsdata  tsdata02
+</code></pre><p><em>备库上做基础备份</em></p>
+<pre tabindex="0"><code>[postgres@vm2 pgsql]$ pg_basebackup -Rx -Pv -h 192.168.10.74 -D $PGDATA
+Password:
+transaction log start point: 0/22000028 on timeline 3
+44892/44892 kB (100%), 3/3 tablespaces
+transaction log end point: 0/220000B8
+pg_basebackup: base backup completed
+</code></pre><blockquote>
+<p>使用任何一种方法做一个基础备份,主要用来搭建备库</p>
+</blockquote>
+<h2 id="备库配置">备库配置</h2>
+<h3 id="配置recoveryconf">配置recovery.conf</h3>
+<p>由于使用pg_basebackup的-R参数,自动帮我们生成了一个recovery.conf文件,内容为:</p>
+<pre tabindex="0"><code>standby_mode = 'on'
+primary_conninfo = 'user=postgres password=postgres host=192.168.10.74 port=5432 sslmode=disable sslcompression=1'
+</code></pre><p>我们这里先不做流复制, primary_conninfo先注释掉</p>
+<pre tabindex="0"><code>[postgres@vm2 data]$ vi recovery.conf
+restore_command = 'cp /var/lib/pgsql/pg_archive/%f %p'
+standby_mode = on
+:wq
+</code></pre><p><em>暂时只使用这两个参数</em></p>
+<h3 id="启动备库检查日志">启动备库检查日志</h3>
+<pre tabindex="0"><code>[postgres@vm2 data]$ pg_ctl start
+[postgres@vm2 data]$ tail -f pg_log/postgresql-27_193629.csv
+2015-02-27 19:36:29.936 CST,,,14203,,54f056bd.377b,1,,2015-02-27 19:36:29 CST,,0,LOG,00000,&quot;ending log output to stderr&quot;,,&quot;Future log output will go to log destination &quot;&quot;csvlog&quot;&quot;.&quot;,,,,,,,&quot;&quot;
+2015-02-27 19:36:29.941 CST,,,14205,,54f056bd.377d,1,,2015-02-27 19:36:29 CST,,0,LOG,00000,&quot;database system was interrupted; last known up at 2015-02-27 19:26:49 CST&quot;,,,,,,,,,&quot;&quot;
+2015-02-27 19:36:29.942 CST,,,14205,,54f056bd.377d,2,,2015-02-27 19:36:29 CST,,0,LOG,00000,&quot;entering standby mode&quot;,,,,,,,,,&quot;&quot;
+2015-02-27 19:36:29.987 CST,,,14205,,54f056bd.377d,3,,2015-02-27 19:36:29 CST,,0,LOG,00000,&quot;restored log file &quot;&quot;000000030000000000000022&quot;&quot; from archive&quot;,,,,,,,,,&quot;&quot;
+2015-02-27 19:36:29.998 CST,,,14205,,54f056bd.377d,4,,2015-02-27 19:36:29 CST,,0,LOG,00000,&quot;redo starts at 0/22000090&quot;,,,,,,,,,&quot;&quot;
+2015-02-27 19:36:29.999 CST,,,14205,,54f056bd.377d,5,,2015-02-27 19:36:29 CST,,0,LOG,00000,&quot;consistent recovery state reached at 0/220000B8&quot;,,,,,,,,,&quot;&quot;
+</code></pre><h3 id="检查备库进程">检查备库进程</h3>
+<pre tabindex="0"><code>[postgres@vm2 ~]$ ps -ef | grep postgres:
+postgres 14204 14203  0 19:36 ?        00:00:00 postgres: logger process
+postgres 14205 14203  0 19:36 ?        00:00:00 postgres: startup process   waiting for 000000030000000000000023
+postgres 14208 14203  0 19:36 ?        00:00:00 postgres: checkpointer process
+postgres 14209 14203  0 19:36 ?        00:00:00 postgres: writer process
+postgres 14348 14309  0 19:37 pts/1    00:00:00 grep postgres:
+</code></pre><h3 id="简单测试">简单测试</h3>
+<p><em>在主库上建点数据</em></p>
+<pre tabindex="0"><code>db01=&gt; create table t_standby_test(id int ,name text);
+CREATE TABLE
+db01=&gt; insert into t_standby_test select generate_series(1,1000),'name';
+INSERT 0 1000
+db01=# select pg_switch_xlog();
+ pg_switch_xlog
+----------------
+ 0/23017778
+(1 row)
+</code></pre><p><em>在备库上检查应用WAL归档的情况</em></p>
+<pre tabindex="0"><code>[postgres@vm2 data]$ tail -f pg_log/postgresql-27_002122.csv
+......
+2015-02-27 19:36:29.998 CST,,,14205,,54f056bd.377d,4,,2015-02-27 19:36:29 CST,,0,LOG,00000,&quot;redo starts at 0/22000090&quot;,,,,,,,,,&quot;&quot;
+2015-02-27 19:36:29.999 CST,,,14205,,54f056bd.377d,5,,2015-02-27 19:36:29 CST,,0,LOG,00000,&quot;consistent recovery state reached at 0/220000B8&quot;,,,,,,,,,&quot;&quot;
+2015-02-27 19:38:55.444 CST,,,14205,,54f056bd.377d,6,,2015-02-27 19:36:29 CST,,0,LOG,00000,&quot;restored log file &quot;&quot;000000030000000000000023&quot;&quot; from archive&quot;,,,,,,,,,&quot;&quot;
+</code></pre><h3 id="备库设置成只读库hot_standby">备库设置成只读库(hot_standby)</h3>
+<p><em>没有设置的话默认在备库上不能访问</em></p>
+<pre tabindex="0"><code>[postgres@vm2 ~]$ psql
+psql: FATAL:  the database system is starting up
+</code></pre><h4 id="主库先改成hot_standby模式">主库先改成hot_standby模式</h4>
+<pre tabindex="0"><code>[postgres@fnddb data]$ vi postgresql.conf
+......
+wal_level = hot_standby
+[postgres@fnddb data]$ pg_ctl restart
+[postgres@fnddb data]$ psql -c &quot;select pg_switch_xlog()&quot;
+</code></pre><blockquote>
+<p>需要切换生成一个WAL归档传输到备库,使备库应用
+再接下来生成的WAL归档将包含hot_standby信息的归档</p>
+</blockquote>
+<p><em>如果不包含hot_standby的WAL归档,在备库上设置成hot_standby模式将启动失败,会报如下错误</em></p>
+<pre tabindex="0"><code>2015-02-27 19:47:30.635 CST,,,15111,,54f05952.3b07,4,,2015-02-27 19:47:30 CST,,0,FATAL,XX000,&quot;hot standby is not possible because wal_level was not set to &quot;&quot;hot_standby&quot;&quot; or higher on the master server&quot;,,&quot;Either set wal_level to &quot;&quot;hot_standby&quot;&quot; on the master, or turn off hot_standby here.&quot;,,,,,,&quot;CheckRequiredParameterValues, xlog.c:5949&quot;,&quot;&quot;
+2015-02-27 19:47:30.636 CST,,,15109,,54f05952.3b05,2,,2015-02-27 19:47:30 CST,,0,LOG,00000,&quot;startup process (PID 15111) exited with exit code 1&quot;,,,,,,,,&quot;LogChildExit, postmaster.c:3325&quot;,&quot;&quot;
+2015-02-27 19:47:30.636 CST,,,15109,,54f05952.3b05,3,,2015-02-27 19:47:30 CST,,0,LOG,00000,&quot;aborting startup due to startup process failure&quot;,,,,,,,,&quot;reaper, postmaster.c:2604&quot;,&quot;&quot;
+</code></pre><h4 id="备库设置成hot_standby-模式">备库设置成hot_standby 模式</h4>
+<pre tabindex="0"><code>[postgres@vm2 data]$ vi postgresql.conf
+......
+hot_standby = on
+[postgres@fnddb data]$ pg_ctl restart
+</code></pre><h4 id="检查两边数据一致性">检查两边数据一致性</h4>
+<p><em>主库测试</em></p>
+<pre tabindex="0"><code>db01=# insert into t_standby_test select generate_series(1,1000),'name';
+INSERT 0 1000
+db01=# select count(*) from t_standby_test;
+ count
+-------
+  3000
+(1 row)
+
+db01=# select pg_switch_xlog();
+ pg_switch_xlog
+----------------
+ 0/270175A8
+(1 row)
+</code></pre><blockquote>
+<p>为啥要切换生成日志?
+因为架设的是基于文件的备库,只有归档传输到备库后才会应用,否则记录还在主库的xlog中.
+下篇流复制实时性就很高了!</p>
+</blockquote>
+<p><em>备库测试</em></p>
+<pre tabindex="0"><code>[postgres@vm2 ~]$ psql db01 hippo
+psql (9.4.1)
+Type &quot;help&quot; for help.
+
+db01=# select count(*) from t_standby_test;
+ count
+-------
+  3000
+(1 row)
+</code></pre><h2 id="总结">总结</h2>
+<p>备库的原理跟之前文章里的在线备份与恢复非常相似,只是recovery.conf配置有些许差异.
+这文章中的备库模式有点像oracle中dataguard使用arch进程进行传输standby redolog,实时性不好.
+可以通过配置archive_timeout参数来减少主备之间数据差异的窗口.</p>
+<p>未完待续&hellip;&hellip;</p>
+<p>//END</p>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/standby/" rel="tag">standby</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/ha/" rel="tag">HA</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="Hippo avatar" src="http://pool.idyi.net/img/avatar.jpg" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About Hippo</span>
+	</div>
+	<div class="authorbox__description">
+		Hippo&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+	</div>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="http://pool.idyi.net/postgres/postgres-func-string-2/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">postgresql字符串函数与操作符号(二)</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="http://pool.idyi.net/postgres/postgres-ha-2/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">postgresql高可用性之备库(二)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hippool" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2021 河马的池塘.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="http://pool.idyi.net/js/menu.js"></script>
+</body>
+</html>

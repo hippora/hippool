@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>wal on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/wal/</link>
+    <description>Recent content in wal on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Fri, 13 Feb 2015 17:09:59 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/wal/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>postgresql在线备份与恢复(三)</title>
+      <link>http://pool.idyi.net/postgres/postgres-backup-restore-ol-3/</link>
+      <pubDate>Fri, 13 Feb 2015 17:09:59 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-backup-restore-ol-3/</guid>
+      <description>&lt;p&gt;这次使用更底层的API函数来进行备份,然后恢复到某一个时点(PITR)&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>postgresql在线备份与恢复(二)</title>
+      <link>http://pool.idyi.net/postgres/postgres-backup-restore-ol-2/</link>
+      <pubDate>Wed, 11 Feb 2015 16:58:41 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-backup-restore-ol-2/</guid>
+      <description>&lt;p&gt;在线备份必须要在归档模式下.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>postgresql在线备份与恢复(一)</title>
+      <link>http://pool.idyi.net/postgres/postgres-backup-restore-ol-1/</link>
+      <pubDate>Wed, 11 Feb 2015 16:53:32 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-backup-restore-ol-1/</guid>
+      <description>&lt;p&gt;PG默认是不开启归档的.数据库服务器它只维护了一些WAL日志..&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

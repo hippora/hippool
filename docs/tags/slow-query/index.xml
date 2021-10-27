@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Slow Query on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/slow-query/</link>
+    <description>Recent content in Slow Query on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Fri, 30 Oct 2015 10:56:36 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/slow-query/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>mysql-普通查询(General Query)慢查询(Slow Query)相关日志配置</title>
+      <link>http://pool.idyi.net/mysql/mysql-log-slow/</link>
+      <pubDate>Fri, 30 Oct 2015 10:56:36 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/mysql/mysql-log-slow/</guid>
+      <description>&lt;p&gt;普通查询(General Query)慢查询(Slow Query)相关日志配置,日志的作用主要就是诊断,排错,优化.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

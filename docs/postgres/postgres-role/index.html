@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>postgresql role(角色) - 河马的池塘</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:title" content="postgresql role(角色)" />
+<meta property="og:description" content="在PG中,用户是通过role来表示的.role也可以表示成一组用户.
+角色与用户的概念比较模糊,可以认为带LOGIN属性的role就是用户." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://pool.idyi.net/postgres/postgres-role/" /><meta property="article:section" content="postgres" />
+<meta property="article:published_time" content="2015-02-09T16:17:00+08:00" />
+<meta property="article:modified_time" content="2015-02-09T16:17:00+08:00" />
+
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="http://pool.idyi.net/css/style.css">
+	
+
+	<link rel="shortcut icon" href="http://pool.idyi.net/favicon.ico">
+		
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-92973579-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="http://pool.idyi.net/" title="河马的池塘" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">河马的池塘</div>
+					<div class="logo__tagline">一些技术笔记</div>
+				</div>
+		</a>
+	</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="http://pool.idyi.net/about">
+				<i class='fa fa-info-circle'></i>
+				<span class="menu__text">ABOUT ME</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">postgresql role(角色)</h1>
+			<div class="post__meta meta"><div class="meta__item-author meta__item">
+	<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2 0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class="meta__text">Hippo</span>
+</div>
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class="meta__text" datetime="2015-02-09T16:17:00&#43;08:00">2015-02-09</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg><span class="meta__text"><a class="meta__link" href="http://pool.idyi.net/categories/postgresql/" rel="category">postgresql</a>
+	</span>
+</div></div>
+		</header>
+		
+<div class="post__toc toc">
+	<div class="toc__title">Page content</div>
+	<div class="toc__menu">
+		<nav id="TableOfContents">
+  <ul>
+    <li><a href="#创建role">创建role</a></li>
+    <li><a href="#role属性">role属性</a></li>
+    <li><a href="#role的参数">role的参数</a></li>
+    <li><a href="#role-membershiprole-成员">role membership(role 成员)</a></li>
+    <li><a href="#角色删除">角色删除</a></li>
+    <li><a href="#role总结">ROLE总结</a></li>
+  </ul>
+</nav>
+	</div>
+</div><div class="content post__content clearfix">
+			<p>在PG中,用户是通过role来表示的.role也可以表示成一组用户.
+角色与用户的概念比较模糊,可以认为带LOGIN属性的role就是用户.</p>
+<h2 id="创建role">创建role</h2>
+<p><strong>带了login属性.就可以登录数据库.</strong></p>
+<pre tabindex="0"><code>postgres=# create role role1;
+CREATE ROLE
+postgres=# \c - role1
+FATAL:  role &quot;role1&quot; is not permitted to log in
+Previous connection kept
+postgres=# alter role role1 login;
+ALTER ROLE
+postgres=# \c - role1
+You are now connected to database &quot;postgres&quot; as user &quot;role1&quot;.
+</code></pre><blockquote>
+<p>create user role1 与create role role1 login 是等价的,避免混淆,我只记create role方式.</p>
+</blockquote>
+<p>role的系统视图是pg_roles</p>
+<pre tabindex="0"><code>postgres=&gt; select rolname,rolsuper,rolcanlogin from pg_roles;
+ rolname  | rolsuper | rolcanlogin
+----------+----------+-------------
+ postgres | t        | t
+ hippo    | f        | t
+ user2    | f        | t
+ user1    | t        | t
+ role1    | f        | t
+</code></pre><p>在使用initdb初始化cluster时,默认会创建一个superuser,名字是将执行initdb命令的操作系统用户一样的用户,通常叫postgres</p>
+<p>命令行工具如psql,pg_dump等都需要指定连接用户及连接数据库.默认用户是操作系统用户,默认数据库名字跟连接用户名保持一致.</p>
+<p><strong>指定数据库名字</strong></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ psql -d database1
+psql (9.4.1)
+Type &quot;help&quot; for help.
+
+database1=# \c
+You are now connected to database &quot;database1&quot; as user &quot;postgres&quot;.
+</code></pre><p><strong>指定用户名</strong></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ psql -U role1 --不指定数据库名字,默认数据库跟用户名一致,所以找不到
+psql: FATAL:  database &quot;role1&quot; does not exist
+</code></pre><h2 id="role属性">role属性</h2>
+<p>可以认为是这个用户所具有的系统权限.</p>
+<ul>
+<li>LOGIN &ndash;具有登录权限</li>
+<li>SUPERUSER &ndash;超级用户,具有所有系统权限,除了登录验证</li>
+<li>CREATEDB &ndash;创建数据库权限</li>
+<li>CREATEROLE &ndash;创建role权限</li>
+<li>PASSWORD &ndash;设置密码</li>
+</ul>
+<p><strong>修改属性</strong></p>
+<pre tabindex="0"><code>postgres=# create role role2 login;
+CREATE ROLE
+
+postgres=# select * from pg_user where usename = 'role2';
+ usename | usesysid | usecreatedb | usesuper | usecatupd | userepl |  passwd  | valuntil | useconfig
+---------+----------+-------------+----------+-----------+---------+----------+----------+-----------
+ role2   |    16494 | f           | f        | f         | f       | ******** |          |
+(1 row)
+
+postgres=# alter role role2 createdb createrole password 'rolepasswd';
+ALTER ROLE
+postgres=# \du role2
+                 List of roles
+ Role name |       Attributes       | Member of
+-----------+------------------------+-----------
+ role2     | Create role, Create DB | {}
+
+postgres=# alter role role2 nocreatedb nocreaterole superuser;
+ALTER ROLE
+postgres=# \du role2
+           List of roles
+ Role name | Attributes | Member of
+-----------+------------+-----------
+ role2     | Superuser  | {}
+</code></pre><h2 id="role的参数">role的参数</h2>
+<p>可以修改用户的参数,来影响某用户操作数据库的特殊行为.这部分在讲服务器参数修改时已提及.</p>
+<pre tabindex="0"><code>postgres=# alter role role2 set enable_indexscan = f;
+ALTER ROLE
+</code></pre><h2 id="role-membershiprole-成员">role membership(role 成员)</h2>
+<p>为了管理上的方便,我们可以创建一个role group,然后可以将各用户或者有特殊权限的role组织在一起,各个role就是这个role group的membership.
+role group 是不带login的role,因为pg使用role来表示所有的角色,用户,用户组,所以不要混淆,创建语句都是create role.我们来测试一下.</p>
+<p><strong>我们创建一个用户,两个角色,分别有直属一个表的查询权限</strong></p>
+<pre tabindex="0"><code>postgres=# create role jack login inherit;
+CREATE ROLE
+postgres=# create role r1;
+CREATE ROLE
+postgres=# create role r2;
+CREATE ROLE
+postgres=# \c database1
+You are now connected to database &quot;database1&quot; as user &quot;postgres&quot;.
+database1=# create table tab1(id text);
+CREATE TABLE
+database1=# create table tab2(id text);
+CREATE TABLE
+database1=# create table tab3 (id text);
+CREATE TABLE
+database1=# grant select on tab1 to r1;
+GRANT
+database1=# grant select on tab2 to r2;
+GRANT
+database1=# grant select on tab3 to jack;
+GRANT
+</code></pre><p><strong>进行grant授权,使jack成为r1,r2的membership</strong></p>
+<pre tabindex="0"><code>database1=# grant r1 to jack;
+GRANT ROLE
+database1=# grant r2 to jack;
+GRANT ROLE
+database1=# grant usage on schema public to public; --授权usage给所有用户(后一个public),否则看不到数据库中的表.
+GRANT
+</code></pre><p><strong>测试角色切换</strong></p>
+<p><em>jack继承了r1,r2的权限</em></p>
+<pre tabindex="0"><code>database1=# \c - jack
+You are now connected to database &quot;database1&quot; as user &quot;jack&quot;.
+database1=&gt; select * from tab3;
+ id
+----
+(0 rows)
+
+database1=&gt; select * from tab1;
+ id
+----
+(0 rows)
+
+database1=&gt; select * from tab2;
+ id
+----
+(0 rows)
+</code></pre><p><em>间接继承的也可以</em></p>
+<pre tabindex="0"><code>database1=&gt; \c - postgres
+You are now connected to database &quot;database1&quot; as user &quot;postgres&quot;.
+database1=# revoke r2 from jack;
+REVOKE ROLE
+database1=# grant r2 to r1;
+GRANT ROLE
+database1=# \c - jack;
+You are now connected to database &quot;database1&quot; as user &quot;jack&quot;.
+database1=&gt; select * from tab2;
+ id
+----
+(0 rows)
+</code></pre><p><em>关闭r1的继承</em></p>
+<pre tabindex="0"><code>database1=&gt; \c - postgres
+You are now connected to database &quot;database1&quot; as user &quot;postgres&quot;.
+database1=# alter role r1 noinherit;
+ALTER ROLE
+database1=# \c - jack;
+You are now connected to database &quot;database1&quot; as user &quot;jack&quot;.
+database1=&gt; select * from tab2; --已经查询不了r2的权限
+ERROR:  permission denied for relation tab2
+database1=&gt; select * from tab1;
+ id
+----
+(0 rows)
+</code></pre><p><em>直接切换到r2角色,你已经不是jack了:)</em></p>
+<pre tabindex="0"><code>database1=&gt; set role r1;
+SET
+database1=&gt; select * from tab1;
+ id
+----
+(0 rows)
+
+database1=&gt; select * from tab2;
+ERROR:  permission denied for relation tab2
+database1=&gt; select * from tab3;
+ERROR:  permission denied for relation tab3
+</code></pre><p><em>授权不能形成回路</em></p>
+<pre tabindex="0"><code>database1=&gt; \c - postgres
+You are now connected to database &quot;database1&quot; as user &quot;postgres&quot;.
+database1=# \du
+                             List of roles
+ Role name |                   Attributes                   | Member of
+-----------+------------------------------------------------+-----------
+ hippo     |                                                | {}
+ jack      |                                                | {r1}
+ postgres  | Superuser, Create role, Create DB, Replication | {}
+ r1        | No inheritance, Cannot login                   | {r2}
+ r2        | Cannot login                                   | {}
+ user1     | Superuser, Create role, Create DB              | {}
+ user2     | Create DB                                      | {}
+
+database1=# grant jack to r2;
+ERROR:  role &quot;jack&quot; is a member of role &quot;r2&quot;
+</code></pre><p><em>系统权限任何时候都不会继承,只有主动set过去才生效</em></p>
+<pre tabindex="0"><code>database1=# alter role r1 createrole;
+ALTER ROLE
+database1=# \c - jack;
+You are now connected to database &quot;database1&quot; as user &quot;jack&quot;.
+database1=&gt; create role jacktest1;
+ERROR:  permission denied to create role
+database1=&gt; set role r1;
+SET
+database1=&gt; create role jacktest1;
+CREATE ROLE
+</code></pre><p><em>三种方式还原到最初的jack角色</em></p>
+<pre tabindex="0"><code>database1=&gt; set role jack;
+SET
+database1=&gt; set role none;
+SET
+database1=&gt; reset role;
+RESET
+</code></pre><h2 id="角色删除">角色删除</h2>
+<p><em>在什么角色下建的对象,归属于哪个角色,而非登录者</em></p>
+<pre tabindex="0"><code>database1=&gt; \c - postgres
+You are now connected to database &quot;database1&quot; as user &quot;postgres&quot;.
+database1=# grant create on database database1 to r1;
+GRANT
+database1=# \c - jack
+You are now connected to database &quot;database1&quot; as user &quot;jack&quot;.
+database1=&gt; set role r1;
+SET
+database1=&gt; create table tab4(id text);
+CREATE TABLE
+database1=&gt; \dt tab4    --这里要注意:owner变成了r1而不是jack
+       List of relations
+ Schema | Name | Type  | Owner
+--------+------+-------+-------
+ public | tab4 | table | r1
+(1 row)
+</code></pre><p><em>删除role,role下有权限或者是对象属于此role,则删除不了</em></p>
+<pre tabindex="0"><code>database1=&gt; \c - postgres
+You are now connected to database &quot;database1&quot; as user &quot;postgres&quot;.
+database1=# drop role r1;
+ERROR:  role &quot;r1&quot; cannot be dropped because some objects depend on it
+DETAIL:  owner of table tab4
+privileges for database database1
+privileges for table tab1
+</code></pre><p><em>移除掉相关权限关联后进行删除</em></p>
+<pre tabindex="0"><code>database1=# drop table tab1;
+DROP TABLE
+database1=# drop table tab4;
+DROP TABLE
+database1=# revoke create on database database1 from r1;
+REVOKE
+database1=# drop role r1;
+DROP ROLE
+</code></pre><p><em>涉及到r1的成员或者是角色租(role group) 自动释放</em></p>
+<pre tabindex="0"><code>atabase1=# \du
+                            List of roles
+Role name |                   Attributes                   | Member of
+----------+------------------------------------------------+-----------
+hippo     |                                                | {}
+jack      |                                                | {}
+jacktest1 | Cannot login                                   | {}
+postgres  | Superuser, Create role, Create DB, Replication | {}
+r2        | Cannot login                                   | {}
+user1     | Superuser, Create role, Create DB              | {}
+user2     | Create DB                                      | {}
+</code></pre><h2 id="role总结">ROLE总结</h2>
+<ol>
+<li>PG中的role包含了用户,角色,角色组,成员等所有含义.都使用create role来创建.</li>
+<li>一个role可以成为多个role的成员,根据role的inherit属性来决定是否集成其他role的各种权限</li>
+<li>继承关系不能形成回路.</li>
+<li>role上的属性如createdb,createrole不会直接继承,需要显式通过set role切换过去.</li>
+<li>删除role需要先清理此role关联的各种权限.</li>
+</ol>
+<p>//END</p>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/role/" rel="tag">role</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="Hippo avatar" src="http://pool.idyi.net/img/avatar.jpg" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About Hippo</span>
+	</div>
+	<div class="authorbox__description">
+		Hippo&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+	</div>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="http://pool.idyi.net/postgres/postgres-upgrade/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">postgresql升级-小版本号升级</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="http://pool.idyi.net/postgres/postgres-backup-pg_dump1/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">postgresql备份与恢复之SQL Dump</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hippool" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2021 河马的池塘.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="http://pool.idyi.net/js/menu.js"></script>
+</body>
+</html>

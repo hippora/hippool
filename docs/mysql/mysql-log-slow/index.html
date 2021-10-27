@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>mysql-普通查询(General Query)慢查询(Slow Query)相关日志配置 - 河马的池塘</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:title" content="mysql-普通查询(General Query)慢查询(Slow Query)相关日志配置" />
+<meta property="og:description" content="普通查询(General Query)慢查询(Slow Query)相关日志配置,日志的作用主要就是诊断,排错,优化." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://pool.idyi.net/mysql/mysql-log-slow/" /><meta property="article:section" content="mysql" />
+<meta property="article:published_time" content="2015-10-30T10:56:36+08:00" />
+<meta property="article:modified_time" content="2015-10-30T10:56:36+08:00" />
+
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="http://pool.idyi.net/css/style.css">
+	
+
+	<link rel="shortcut icon" href="http://pool.idyi.net/favicon.ico">
+		
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-92973579-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="http://pool.idyi.net/" title="河马的池塘" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">河马的池塘</div>
+					<div class="logo__tagline">一些技术笔记</div>
+				</div>
+		</a>
+	</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="http://pool.idyi.net/about">
+				<i class='fa fa-info-circle'></i>
+				<span class="menu__text">ABOUT ME</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">mysql-普通查询(General Query)慢查询(Slow Query)相关日志配置</h1>
+			<div class="post__meta meta"><div class="meta__item-author meta__item">
+	<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2 0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class="meta__text">Hippo</span>
+</div>
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class="meta__text" datetime="2015-10-30T10:56:36&#43;08:00">2015-10-30</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg><span class="meta__text"><a class="meta__link" href="http://pool.idyi.net/categories/mysql/" rel="category">mysql</a>
+	</span>
+</div></div>
+		</header>
+		
+<div class="post__toc toc">
+	<div class="toc__title">Page content</div>
+	<div class="toc__menu">
+		<nav id="TableOfContents">
+  <ul>
+    <li><a href="#配置">配置</a>
+      <ul>
+        <li><a href="#配置方法一-服务启动时">配置方法一: 服务启动时</a></li>
+        <li><a href="#配置方法二-运行时">配置方法二: 运行时</a></li>
+      </ul>
+    </li>
+    <li><a href="#查看">查看</a></li>
+    <li><a href="#维护">维护</a></li>
+    <li><a href="#slow-query-log相关参数">slow query log相关参数</a></li>
+    <li><a href="#slow-query-log-分析">slow query log 分析</a></li>
+    <li><a href="#总结">总结</a></li>
+  </ul>
+</nav>
+	</div>
+</div><div class="content post__content clearfix">
+			<p>普通查询(General Query)慢查询(Slow Query)相关日志配置,日志的作用主要就是诊断,排错,优化.</p>
+<h2 id="配置">配置</h2>
+<h3 id="配置方法一-服务启动时">配置方法一: 服务启动时</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># vi /etc/my.cnf</span>
+...
+log-output<span style="color:#f92672">=</span>TABLE,FILE
+general-log<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+slow-query-log<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+
+<span style="color:#75715e"># systemctl restart mysqld</span>
+</code></pre></div><blockquote>
+<p><code>log-output</code>默认是FILE,还有个值是NONE,就不输出日志了.我这里演示的是表和日志文件都输出.</p>
+</blockquote>
+<h3 id="配置方法二-运行时">配置方法二: 运行时</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">mysql&gt; set global log_output<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;table&#34;</span>, global general_log<span style="color:#f92672">=</span>on, global slow_query_log<span style="color:#f92672">=</span>on;
+</code></pre></div><h2 id="查看">查看</h2>
+<p>查看相关变量:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">mysql&gt; show variables like <span style="color:#e6db74">&#39;general%&#39;</span>;
++------------------+--------------------------+
+| Variable_name    | Value                    |
++------------------+--------------------------+
+| general_log      | ON                       |
+| general_log_file | /var/lib/mysql/srv00.log |
++------------------+--------------------------+
+<span style="color:#ae81ff">2</span> rows in set <span style="color:#f92672">(</span>0.00 sec<span style="color:#f92672">)</span>
+
+mysql&gt; show variables like <span style="color:#e6db74">&#39;slow%&#39;</span>;
++---------------------+-------------------------------+
+| Variable_name       | Value                         |
++---------------------+-------------------------------+
+| slow_launch_time    | <span style="color:#ae81ff">2</span>                             |
+| slow_query_log      | ON                            |
+| slow_query_log_file | /var/lib/mysql/srv00-slow.log |
++---------------------+-------------------------------+
+<span style="color:#ae81ff">3</span> rows in set <span style="color:#f92672">(</span>0.00 sec<span style="color:#f92672">)</span>
+</code></pre></div><p>相关日志文件:</p>
+<p><code>general_log_file</code>和<code>slow_query_log_file</code>变量指示的文件,可以按需要进行修改</p>
+<p>日志相关的表:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">mysql&gt; <span style="color:#66d9ef">select</span> * from mysql.general_log;
+mysql&gt; <span style="color:#66d9ef">select</span> * from mysql.slow_log;
+</code></pre></div><h2 id="维护">维护</h2>
+<p>日志文件</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">mysql&gt; set global general_log<span style="color:#f92672">=</span>off;
+mysql&gt; <span style="color:#ae81ff">\!</span> mv /var/lib/mysql/srv00.log /var/lib/mysql/srv00.log.bak
+mysql&gt; set global general_log<span style="color:#f92672">=</span>on;
+</code></pre></div><p>或者:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">mv /var/lib/mysql/srv00.log /var/lib/mysql/srv00.log.bak
+mv /var/lib/mysql/srv00-slow.log /var/lib/mysql/srv00-slow.log.bak
+mysqladmin flush-logs
+</code></pre></div><p>修改日志表原理也是一样,先暂停,维护表,再启用</p>
+<h2 id="slow-query-log相关参数">slow query log相关参数</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">mysql&gt; show variables like <span style="color:#e6db74">&#39;long%&#39;</span>;
++-----------------+-----------+
+| Variable_name   | Value     |
++-----------------+-----------+
+| long_query_time | 10.000000 |
++-----------------+-----------+
+<span style="color:#ae81ff">1</span> row in set <span style="color:#f92672">(</span>0.01 sec<span style="color:#f92672">)</span>
+</code></pre></div><blockquote>
+<p>超过这个秒数的慢查询才记录</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">mysql&gt; show variables like <span style="color:#e6db74">&#39;min%&#39;</span>;
++------------------------+-------+
+| Variable_name          | Value |
++------------------------+-------+
+| min_examined_row_limit | <span style="color:#ae81ff">0</span>     |
++------------------------+-------+
+<span style="color:#ae81ff">1</span> row in set <span style="color:#f92672">(</span>0.00 sec<span style="color:#f92672">)</span>
+</code></pre></div><blockquote>
+<p>返回记录数超过才记录</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">mysql&gt; show variables like <span style="color:#e6db74">&#39;log_slow_admin%&#39;</span>;
++---------------------------+-------+
+| Variable_name             | Value |
++---------------------------+-------+
+| log_slow_admin_statements | OFF   |
++---------------------------+-------+
+<span style="color:#ae81ff">1</span> row in set <span style="color:#f92672">(</span>0.00 sec<span style="color:#f92672">)</span>
+</code></pre></div><blockquote>
+<p>是否记录管理类型的sql, 包括:<code>ALTER TABLE</code>, <code>ANALYZE TABLE</code>, <code>CHECK TABLE</code>, <code>CREATE INDEX</code>, <code>DROP INDEX</code>, <code>OPTIMIZE TABLE</code>, <code>REPAIR TABLE</code>.</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">mysql&gt; show variables like <span style="color:#e6db74">&#39;%not_using_indexes&#39;</span>;
++----------------------------------------+-------+
+| Variable_name                          | Value |
++----------------------------------------+-------+
+| log_queries_not_using_indexes          | OFF   |
+| log_throttle_queries_not_using_indexes | <span style="color:#ae81ff">0</span>     |
++----------------------------------------+-------+
+<span style="color:#ae81ff">2</span> rows in set <span style="color:#f92672">(</span>0.01 sec<span style="color:#f92672">)</span>
+</code></pre></div><blockquote>
+<p>没有使用索引的sql是否要记录,如果开启会产生很多记录,<code>log_throttle_queries_not_using_indexes</code>设置每分钟在此范围内只记录一次.</p>
+</blockquote>
+<h2 id="slow-query-log-分析">slow query log 分析</h2>
+<p>使用工具<code>mysqldumpslow</code></p>
+<blockquote>
+<p>熟悉oracle的可以认为<code>mysqldumpslow</code>是oracle的<code>tkprof</code></p>
+</blockquote>
+<h2 id="总结">总结</h2>
+<p>当然开启都会对服务器资源消耗.只在需要的时候开启,不用的时候关掉.</p>
+<p>//END</p>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/general-query/" rel="tag">General Query</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/slow-query/" rel="tag">Slow Query</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="Hippo avatar" src="http://pool.idyi.net/img/avatar.jpg" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About Hippo</span>
+	</div>
+	<div class="authorbox__description">
+		Hippo&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+	</div>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="http://pool.idyi.net/mysql/mysql-user/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">mysql用户管理</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hippool" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2021 河马的池塘.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="http://pool.idyi.net/js/menu.js"></script>
+</body>
+</html>

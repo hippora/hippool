@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>postgresql 修改日志输出 - 河马的池塘</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:title" content="postgresql 修改日志输出" />
+<meta property="og:description" content="刚开始安装PG时,默认的服务日志是输出到stderr的, 我们通过重定向到一个文件中来保存.这种方式不太合理并且会无限增长. pg自带了日志管理.我们来简单设置一下." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://pool.idyi.net/postgres/postgres-log/" /><meta property="article:section" content="postgres" />
+<meta property="article:published_time" content="2015-02-11T16:48:26+08:00" />
+<meta property="article:modified_time" content="2015-02-11T16:48:26+08:00" />
+
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="http://pool.idyi.net/css/style.css">
+	
+
+	<link rel="shortcut icon" href="http://pool.idyi.net/favicon.ico">
+		
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-92973579-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="http://pool.idyi.net/" title="河马的池塘" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">河马的池塘</div>
+					<div class="logo__tagline">一些技术笔记</div>
+				</div>
+		</a>
+	</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="http://pool.idyi.net/about">
+				<i class='fa fa-info-circle'></i>
+				<span class="menu__text">ABOUT ME</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">postgresql 修改日志输出</h1>
+			<div class="post__meta meta"><div class="meta__item-author meta__item">
+	<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2 0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class="meta__text">Hippo</span>
+</div>
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class="meta__text" datetime="2015-02-11T16:48:26&#43;08:00">2015-02-11</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg><span class="meta__text"><a class="meta__link" href="http://pool.idyi.net/categories/postgresql/" rel="category">postgresql</a>
+	</span>
+</div></div>
+		</header>
+		
+<div class="post__toc toc">
+	<div class="toc__title">Page content</div>
+	<div class="toc__menu">
+		<nav id="TableOfContents">
+  <ul>
+    <li><a href="#修改服务配置文件">修改服务配置文件</a></li>
+    <li><a href="#把日志文件导入到table中测试">把日志文件导入到table中测试</a></li>
+    <li><a href="#关于log相关参数">关于log相关参数</a></li>
+  </ul>
+</nav>
+	</div>
+</div><div class="content post__content clearfix">
+			<p>刚开始安装PG时,默认的服务日志是输出到stderr的, 我们通过重定向到一个文件中来保存.这种方式不太合理并且会无限增长. pg自带了日志管理.我们来简单设置一下.</p>
+<h2 id="修改服务配置文件">修改服务配置文件</h2>
+<p><strong>我准备配置成这样:</strong></p>
+<ol>
+<li>输出格式为csv,这样可以方便使用或者导入到表中查询.</li>
+<li>日志只保留一个月.</li>
+<li>每天至少新生产一个日志.</li>
+<li>一旦一个日志满100M,就生成新的日志文件,防止过大.</li>
+</ol>
+<p>修改下列参数并重启生效:</p>
+<pre tabindex="0"><code>[postgres@fnddb pgsql]$ cd $PGDATA
+[postgres@fnddb data]$ vi postgresql.conf
+......
+log_destination = 'csvlog'              # Valid values are combinations of
+logging_collector = on                  # Enable capturing of stderr and csvlog
+log_directory = 'pg_log'                # directory where log files are written,
+log_filename = 'postgresql-%d_%H%M%S.log'       # log file name pattern,
+log_file_mode = 0600                    # creation mode for log files,
+log_truncate_on_rotation = on           # If on, an existing log file with the
+log_rotation_age = 1d                   # Automatic rotation of logfiles will
+log_rotation_size = 100MB               # Automatic rotation of logfiles will
+......
+:wq
+
+[postgres@fnddb data]$ pg_ctl reload
+server signaled
+</code></pre><p>找到之前重定向的日志文件查看</p>
+<pre tabindex="0"><code>[postgres@fnddb data]$ cd ..
+[postgres@fnddb pgsql]$ pwd
+/var/lib/pgsql
+[postgres@fnddb pgsql]$ ls
+data  pgsql.log  tsdata  tsdata01  tsdata02
+[postgres@fnddb pgsql]$ tail -f pgsql.log 
+......
+LOG:  received SIGHUP, reloading configuration files
+LOG:  parameter &quot;log_destination&quot; changed to &quot;csvlog&quot;
+LOG:  parameter &quot;logging_collector&quot; cannot be changed without restarting the server
+LOG:  parameter &quot;log_filename&quot; changed to &quot;postgresql-%d_%H%M%S.log&quot;
+LOG:  parameter &quot;log_truncate_on_rotation&quot; changed to &quot;on&quot;
+LOG:  parameter &quot;log_rotation_size&quot; changed to &quot;100MB&quot;
+LOG:  configuration file &quot;/var/lib/pgsql/data/postgresql.conf&quot; contains errors; unaffected changes were applied
+^C
+</code></pre><p>logging_collector参数必须要重启才能生效.我们重启一下.</p>
+<pre tabindex="0"><code>[postgres@fnddb pgsql]$ pg_ctl restart
+waiting for server to shut down.... done
+server stopped
+server starting
+[postgres@fnddb pgsql]$ LOG:  redirecting log output to logging collector process
+HINT:  Future log output will appear in directory &quot;pg_log&quot;.
+</code></pre><p>控制台提示了之后的日志将会放在pg_log目录下.</p>
+<pre tabindex="0"><code>[postgres@fnddb pg_log]$ cd $PGDATA/pg_log
+[postgres@fnddb pg_log]$ ll
+total 8
+-rw-------. 1 postgres postgres 936 Feb 11 21:49 postgresql-11_200630.csv
+-rw-------. 1 postgres postgres  96 Feb 11 20:06 postgresql-11_200630.log
+</code></pre><h2 id="把日志文件导入到table中测试">把日志文件导入到table中测试</h2>
+<p>官方文档给了个默认csv格式的表,我们来测试一下</p>
+<pre tabindex="0"><code>[postgres@fnddb pg_log]$ psql -U hippo database1
+psql (9.4.1)
+Type &quot;help&quot; for help.
+
+database1=&gt; CREATE TABLE postgres_log
+database1-&gt; (
+database1(&gt;   log_time timestamp(3) with time zone,
+database1(&gt;   user_name text,
+database1(&gt;   database_name text,
+database1(&gt;   process_id integer,
+database1(&gt;   connection_from text,
+database1(&gt;   session_id text,
+database1(&gt;   session_line_num bigint,
+database1(&gt;   command_tag text,
+database1(&gt;   session_start_time timestamp with time zone,
+database1(&gt;   virtual_transaction_id text,
+database1(&gt;   transaction_id bigint,
+database1(&gt;   error_severity text,
+database1(&gt;   sql_state_code text,
+database1(&gt;   message text,
+database1(&gt;   detail text,
+database1(&gt;   hint text,
+database1(&gt;   internal_query text,
+database1(&gt;   internal_query_pos integer,
+database1(&gt;   context text,
+database1(&gt;   query text,
+database1(&gt;   query_pos integer,
+database1(&gt;   location text,
+database1(&gt;   application_name text,
+database1(&gt;   PRIMARY KEY (session_id, session_line_num)
+database1(&gt; );
+CREATE TABLE
+database1=&gt; COPY postgres_log FROM '/var/lib/postgres/data/pg_log/postgresql-11_200630.csv' WITH csv; --copy命令只能superuser来使用
+ERROR:  must be superuser to COPY to or from a file
+HINT:  Anyone can COPY to stdout or from stdin. psql's \copy command also works for anyone.
+</code></pre><p><em>使用\copy命令再执行下</em></p>
+<pre tabindex="0"><code>database1=&gt; \copy postgres_log FROM '/var/lib/pgsql/data/pg_log/postgresql-11_200630.csv' WITH csv;
+COPY 7
+database1=&gt; \x
+Expanded display is on.
+database1=&gt; select * from postgres_log;
+-[ RECORD 1 ]----------+------------------------------------------------------------------------------------------
+log_time               | 2015-02-12 10:06:30.654+08
+user_name              | 
+database_name          | 
+process_id             | 24167
+connection_from        | 
+session_id             | 54db45c6.5e67
+session_line_num       | 1
+command_tag            | 
+session_start_time     | 2015-02-12 10:06:30+08
+virtual_transaction_id | 
+transaction_id         | 0
+error_severity         | LOG
+sql_state_code         | 00000
+message                | ending log output to stderr
+detail                 | 
+hint                   | Future log output will go to log destination &quot;csvlog&quot;.
+internal_query         | 
+internal_query_pos     | 
+context                | 
+query                  | 
+query_pos              | 
+location               | 
+application_name       | 
+-[ RECORD 2 ]----------+------------------------------------------------------------------------------------------
+log_time               | 2015-02-12 10:06:30.657+08
+......
+</code></pre><h2 id="关于log相关参数">关于log相关参数</h2>
+<pre tabindex="0"><code>[postgres@fnddb pg_log]$ grep -E '^#?log' $PGDATA/postgresql.conf 
+log_destination = 'csvlog'              # Valid values are combinations of
+logging_collector = on                  # Enable capturing of stderr and csvlog
+log_directory = 'pg_log'                # directory where log files are written,
+log_filename = 'postgresql-%d_%H%M%S.log'       # log file name pattern,
+log_file_mode = 0600                    # creation mode for log files,
+log_truncate_on_rotation = on           # If on, an existing log file with the
+log_rotation_age = 1d                   # Automatic rotation of logfiles will
+log_rotation_size = 100MB               # Automatic rotation of logfiles will
+#log_min_messages = warning             # values in order of decreasing detail:
+#log_min_error_statement = error        # values in order of decreasing detail:
+#log_min_duration_statement = -1        # -1 is disabled, 0 logs all statements
+#log_checkpoints = off
+#log_connections = off
+#log_disconnections = off
+#log_duration = off
+#log_error_verbosity = default          # terse, default, or verbose messages
+#log_hostname = off
+#log_line_prefix = ''                   # special values:
+log_lock_waits = on                     # log lock waits &gt;= deadlock_timeout
+#log_statement = 'none'                 # none, ddl, mod, all
+#log_temp_files = -1                    # log temporary files equal or larger
+log_timezone = 'PRC'
+#log_parser_stats = off
+#log_planner_stats = off
+#log_executor_stats = off
+#log_statement_stats = off
+#log_autovacuum_min_duration = -1       # -1 disables, 0 logs all actions and
+</code></pre><p>//END</p>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/log/" rel="tag">log</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="Hippo avatar" src="http://pool.idyi.net/img/avatar.jpg" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About Hippo</span>
+	</div>
+	<div class="authorbox__description">
+		Hippo&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+	</div>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="http://pool.idyi.net/postgres/postgres-backup-pg_dump2/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">postgresql备份恢复之pg_dump大数据处理</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="http://pool.idyi.net/postgres/postgres-backup-restore-ol-1/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">postgresql在线备份与恢复(一)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hippool" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2021 河马的池塘.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="http://pool.idyi.net/js/menu.js"></script>
+</body>
+</html>

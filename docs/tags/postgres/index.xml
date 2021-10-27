@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>postgres on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/postgres/</link>
+    <description>Recent content in postgres on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Wed, 25 Feb 2015 18:18:24 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/postgres/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>postgresql数学函数与操作符</title>
+      <link>http://pool.idyi.net/postgres/postgres-func-math/</link>
+      <pubDate>Wed, 25 Feb 2015 18:18:24 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-func-math/</guid>
+      <description>&lt;p&gt;数学函数与操作符号&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>postgresql 逻辑和比较操作</title>
+      <link>http://pool.idyi.net/postgres/postgres-func-comparision/</link>
+      <pubDate>Tue, 24 Feb 2015 18:09:00 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-func-comparision/</guid>
+      <description>&lt;p&gt;主要还是记录觉得特别的地方或需要注意的地方.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>postgresql中表的继承及分区表(四)</title>
+      <link>http://pool.idyi.net/postgres/postgres-table-inheritance-4/</link>
+      <pubDate>Tue, 24 Feb 2015 18:01:57 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-table-inheritance-4/</guid>
+      <description>&lt;p&gt;这边介绍一下分区的其他方面&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

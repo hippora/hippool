@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>role on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/role/</link>
+    <description>Recent content in role on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Mon, 09 Feb 2015 16:17:00 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/role/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>postgresql role(角色)</title>
+      <link>http://pool.idyi.net/postgres/postgres-role/</link>
+      <pubDate>Mon, 09 Feb 2015 16:17:00 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-role/</guid>
+      <description>&lt;p&gt;在PG中,用户是通过role来表示的.role也可以表示成一组用户.
+角色与用户的概念比较模糊,可以认为带LOGIN属性的role就是用户.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

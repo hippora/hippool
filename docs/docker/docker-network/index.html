@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>docker的网络 - 河马的池塘</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:title" content="docker的网络" />
+<meta property="og:description" content="docker的网络" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://pool.idyi.net/docker/docker-network/" /><meta property="article:section" content="docker" />
+<meta property="article:published_time" content="2016-05-20T11:25:10+08:00" />
+<meta property="article:modified_time" content="2016-05-20T11:25:10+08:00" />
+
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="http://pool.idyi.net/css/style.css">
+	
+
+	<link rel="shortcut icon" href="http://pool.idyi.net/favicon.ico">
+		
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-92973579-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="http://pool.idyi.net/" title="河马的池塘" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">河马的池塘</div>
+					<div class="logo__tagline">一些技术笔记</div>
+				</div>
+		</a>
+	</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="http://pool.idyi.net/about">
+				<i class='fa fa-info-circle'></i>
+				<span class="menu__text">ABOUT ME</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">docker的网络</h1>
+			<div class="post__meta meta"><div class="meta__item-author meta__item">
+	<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2 0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class="meta__text">Hippo</span>
+</div>
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class="meta__text" datetime="2016-05-20T11:25:10&#43;08:00">2016-05-20</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg><span class="meta__text"><a class="meta__link" href="http://pool.idyi.net/categories/docker/" rel="category">docker</a>
+	</span>
+</div></div>
+		</header>
+		
+<div class="post__toc toc">
+	<div class="toc__title">Page content</div>
+	<div class="toc__menu">
+		<nav id="TableOfContents">
+  <ul>
+    <li><a href="#docker-network">docker network</a></li>
+    <li><a href="#创建自己的-bridge-network">创建自己的 bridge network</a></li>
+  </ul>
+</nav>
+	</div>
+</div><div class="content post__content clearfix">
+			<p>docker的网络</p>
+<h2 id="docker-network">docker network</h2>
+<p>docker有3个默认网络</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker network ls
+NETWORK ID          NAME                DRIVER
+b891bd36a3f1        bridge              bridge
+739cb6a018f7        host                host
+d0e062995920        none                null
+</code></pre><p>默认容器都是运行在 <code>bridge</code> 网络下</p>
+<p>运行个容器测试下</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker run -itd --name nw centos
+5ffb7062805af03b00ecc6160a78c855a7d1b7c32bfcc14d78ce036f2df9a517
+[root@srv00 ~]# docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED              STATUS              PORTS                   NAMES
+5ffb7062805a        centos              &quot;/bin/bash&quot;              About a minute ago   Up About a minute                           nw
+</code></pre><blockquote>
+<p><code>--name</code> 给容器命名,否则docker自动命名.</p>
+</blockquote>
+<p>查看bridge网络下的容器有哪些:</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker network inspect bridge
+[
+    {
+        &quot;Name&quot;: &quot;bridge&quot;,
+        &quot;Id&quot;: &quot;b891bd36a3f12dc2bb1f4526c0fc2741c0f8ccf6011071116840b6b31f9b20ac&quot;,
+        &quot;Scope&quot;: &quot;local&quot;,
+        &quot;Driver&quot;: &quot;bridge&quot;,
+        &quot;EnableIPv6&quot;: false,
+        &quot;IPAM&quot;: {
+            &quot;Driver&quot;: &quot;default&quot;,
+            &quot;Options&quot;: null,
+            &quot;Config&quot;: [
+                {
+                    &quot;Subnet&quot;: &quot;172.17.0.0/16&quot;,
+                    &quot;Gateway&quot;: &quot;172.17.42.1&quot;
+                }
+            ]
+        },
+        &quot;Internal&quot;: false,
+        &quot;Containers&quot;: {
+            &quot;5ffb7062805af03b00ecc6160a78c855a7d1b7c32bfcc14d78ce036f2df9a517&quot;: {
+                &quot;Name&quot;: &quot;nw&quot;,
+                &quot;EndpointID&quot;: &quot;65f410576be2d9aadb697ebb820e372ffb2073db7868ec001e87da5c8cf40d71&quot;,
+                &quot;MacAddress&quot;: &quot;02:42:ac:11:00:02&quot;,
+                &quot;IPv4Address&quot;: &quot;172.17.0.2/16&quot;,
+                &quot;IPv6Address&quot;: &quot;&quot;
+            },
+            &quot;616d942216ee7050ecff07ca66d2d7583d4093820e9d1448f96b417d7d779408&quot;: {
+                &quot;Name&quot;: &quot;high_shockley&quot;,
+                &quot;EndpointID&quot;: &quot;de09ec8b400b2724238d78ece5ff24201b7baffcdb7279809ea6b1beae5fec1d&quot;,
+                &quot;MacAddress&quot;: &quot;02:42:ac:11:00:06&quot;,
+                &quot;IPv4Address&quot;: &quot;172.17.0.6/16&quot;,
+                &quot;IPv6Address&quot;: &quot;&quot;
+            },
+            &quot;dead20777b6c1609ab968966b3589904d44f8a12c124c178fd5cb540052cce6f&quot;: {
+                &quot;Name&quot;: &quot;gloomy_cray&quot;,
+                &quot;EndpointID&quot;: &quot;1ba62447dd2d89165fc7079442a2016fb1c44caa02cca7cda6bf363eec2841da&quot;,
+                &quot;MacAddress&quot;: &quot;02:42:ac:11:00:07&quot;,
+                &quot;IPv4Address&quot;: &quot;172.17.0.7/16&quot;,
+                &quot;IPv6Address&quot;: &quot;&quot;
+            },
+            &quot;e709f66c9bdbcc20f92b804e483bb566bc4ee934fa1e2e5cdbf4759f7ac1923c&quot;: {
+                &quot;Name&quot;: &quot;tiny_shockley&quot;,
+                &quot;EndpointID&quot;: &quot;a070387813fc17fd54ab389b4afe40c80c5dbbe42c86983a89a84a65cf32e378&quot;,
+                &quot;MacAddress&quot;: &quot;02:42:ac:11:00:01&quot;,
+                &quot;IPv4Address&quot;: &quot;172.17.0.1/16&quot;,
+                &quot;IPv6Address&quot;: &quot;&quot;
+            }
+        },
+        &quot;Options&quot;: {
+            &quot;com.docker.network.bridge.default_bridge&quot;: &quot;true&quot;,
+            &quot;com.docker.network.bridge.enable_icc&quot;: &quot;true&quot;,
+            &quot;com.docker.network.bridge.enable_ip_masquerade&quot;: &quot;true&quot;,
+            &quot;com.docker.network.bridge.host_binding_ipv4&quot;: &quot;0.0.0.0&quot;,
+            &quot;com.docker.network.bridge.name&quot;: &quot;docker0&quot;,
+            &quot;com.docker.network.driver.mtu&quot;: &quot;1500&quot;
+        },
+        &quot;Labels&quot;: {}
+    }
+]
+</code></pre><blockquote>
+<p>可以看到刚运行的容器nw的ip是<code>172.17.0.2</code></p>
+</blockquote>
+<p>我们可以将某个容器从网络中移除</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker exec -it high_shockley /bin/bash
+[root@616d942216ee /]# ping 172.17.0.2
+PING 172.17.0.2 (172.17.0.2) 56(84) bytes of data.
+64 bytes from 172.17.0.2: icmp_seq=1 ttl=64 time=0.100 ms
+64 bytes from 172.17.0.2: icmp_seq=2 ttl=64 time=0.065 ms
+^C
+--- 172.17.0.2 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 999ms
+rtt min/avg/max/mdev = 0.065/0.082/0.100/0.019 ms
+[root@616d942216ee /]# exit
+exit
+</code></pre><blockquote>
+<p>先进入同网络的另一个容器ping,可以ping通.</p>
+</blockquote>
+<pre tabindex="0"><code>[root@srv00 ~]# docker network disconnect bridge nw
+[root@srv00 ~]# docker exec -it high_shockley /bin/bash
+[root@616d942216ee /]# ping 172.17.0.2
+PING 172.17.0.2 (172.17.0.2) 56(84) bytes of data.
+^C
+--- 172.17.0.2 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 1999ms
+
+[root@616d942216ee /]# exit
+exit
+[root@srv00 ~]# docker network inspect bridge
+...
+</code></pre><blockquote>
+<p>可以看到ping不通.也不在bridge网络里了.通过<code>docker inspect nw</code> 已经没有ip地址了.</p>
+</blockquote>
+<h2 id="创建自己的-bridge-network">创建自己的 bridge network</h2>
+<p>docker 支持 两个网络驱动类型&rsquo;bridge&rsquo;和<code>overlay</code>.
+&lsquo;bridge&rsquo; 是运行在统一主机上的网络.<code>overlay</code>可以包括多个主机.</p>
+<p>这里我们先创建自己的&rsquo;bridge&rsquo;网络</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker network create -d bridge mynetwork
+072dbe030461bc1f7e1bc4829017f13ade899b09b606d12dfb8b6dec496a08bf
+[root@srv00 ~]# docker network ls
+NETWORK ID          NAME                DRIVER
+b891bd36a3f1        bridge              bridge
+739cb6a018f7        host                host
+072dbe030461        mynetwork           bridge
+d0e062995920        none                null
+[root@srv00 ~]# docker network inspect mynetwork
+[
+    {
+        &quot;Name&quot;: &quot;mynetwork&quot;,
+        &quot;Id&quot;: &quot;072dbe030461bc1f7e1bc4829017f13ade899b09b606d12dfb8b6dec496a08bf&quot;,
+        &quot;Scope&quot;: &quot;local&quot;,
+        &quot;Driver&quot;: &quot;bridge&quot;,
+        &quot;EnableIPv6&quot;: false,
+        &quot;IPAM&quot;: {
+            &quot;Driver&quot;: &quot;default&quot;,
+            &quot;Options&quot;: {},
+            &quot;Config&quot;: [
+                {
+                    &quot;Subnet&quot;: &quot;172.18.0.0/16&quot;,
+                    &quot;Gateway&quot;: &quot;172.18.0.1/16&quot;
+                }
+            ]
+        },
+        &quot;Internal&quot;: false,
+        &quot;Containers&quot;: {},
+        &quot;Options&quot;: {},
+        &quot;Labels&quot;: {}
+    }
+]
+</code></pre><blockquote>
+<p><code>mynetwork</code>下一个容器都没有</p>
+</blockquote>
+<p>运行个容器在<code>mynetwork</code>下</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker run -itd --net mynetwork --name nw1 centos
+c5b59a1e180753301460b597b87b1608b00ebe2b8620b41b8851938c6eab8044
+[root@srv00 ~]# docker network inspect mynetwork
+[
+    {
+        &quot;Name&quot;: &quot;mynetwork&quot;,
+        &quot;Id&quot;: &quot;072dbe030461bc1f7e1bc4829017f13ade899b09b606d12dfb8b6dec496a08bf&quot;,
+        &quot;Scope&quot;: &quot;local&quot;,
+        &quot;Driver&quot;: &quot;bridge&quot;,
+        &quot;EnableIPv6&quot;: false,
+        &quot;IPAM&quot;: {
+            &quot;Driver&quot;: &quot;default&quot;,
+            &quot;Options&quot;: {},
+            &quot;Config&quot;: [
+                {
+                    &quot;Subnet&quot;: &quot;172.18.0.0/16&quot;,
+                    &quot;Gateway&quot;: &quot;172.18.0.1/16&quot;
+                }
+            ]
+        },
+        &quot;Internal&quot;: false,
+        &quot;Containers&quot;: {
+            &quot;c5b59a1e180753301460b597b87b1608b00ebe2b8620b41b8851938c6eab8044&quot;: {
+                &quot;Name&quot;: &quot;nw1&quot;,
+                &quot;EndpointID&quot;: &quot;ed444519fd958ddd83d64f62719f485f62d284f2a647536e4f48a8128e62ad5e&quot;,
+                &quot;MacAddress&quot;: &quot;02:42:ac:12:00:02&quot;,
+                &quot;IPv4Address&quot;: &quot;172.18.0.2/16&quot;,
+                &quot;IPv6Address&quot;: &quot;&quot;
+            }
+        },
+        &quot;Options&quot;: {},
+        &quot;Labels&quot;: {}
+    }
+]
+</code></pre><p>测试下互通性
+先把nw连到bridge网络</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker network connect bridge nw
+[root@srv00 ~]# docker exec -it nw /bin/bash
+[root@5ffb7062805a /]# ping 172.18.0.2
+PING 172.18.0.2 (172.18.0.2) 56(84) bytes of data.
+^C
+--- 172.18.0.2 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 1999ms
+</code></pre><blockquote>
+<p>不同网络中的容器不通.</p>
+</blockquote>
+<p>将nw也加入到mynetwork</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker network connect mynetwork nw
+[root@srv00 ~]# docker network inspect mynetwork
+[root@srv00 ~]# docker network inspect bridge
+</code></pre><blockquote>
+<p>可以看到2个网络中都有nw</p>
+</blockquote>
+<pre tabindex="0"><code>[root@srv00 ~]# docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' nw
+172.17.0.2172.18.0.3
+[root@srv00 ~]# docker exec -it nw /bin/bash
+[root@5ffb7062805a /]# ping 172.18.0.2 -c3
+PING 172.18.0.2 (172.18.0.2) 56(84) bytes of data.
+64 bytes from 172.18.0.2: icmp_seq=1 ttl=64 time=0.093 ms
+64 bytes from 172.18.0.2: icmp_seq=2 ttl=64 time=0.057 ms
+64 bytes from 172.18.0.2: icmp_seq=3 ttl=64 time=0.076 ms
+
+--- 172.18.0.2 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2000ms
+rtt min/avg/max/mdev = 0.057/0.075/0.093/0.016 ms
+[root@5ffb7062805a /]# ping 172.17.0.6 -c3
+PING 172.17.0.6 (172.17.0.6) 56(84) bytes of data.
+64 bytes from 172.17.0.6: icmp_seq=1 ttl=64 time=0.102 ms
+64 bytes from 172.17.0.6: icmp_seq=2 ttl=64 time=0.080 ms
+^C
+--- 172.17.0.6 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 999ms
+rtt min/avg/max/mdev = 0.080/0.091/0.102/0.011 ms
+</code></pre><blockquote>
+<p>nw 这台容器有两个ip,同时在两个网段中,两个网络中的容器都可以互通.</p>
+</blockquote>
+<p>//END</p>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/network/" rel="tag">network</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="Hippo avatar" src="http://pool.idyi.net/img/avatar.jpg" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About Hippo</span>
+	</div>
+	<div class="authorbox__description">
+		Hippo&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+	</div>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="http://pool.idyi.net/docker/docker-image-custom-2/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">制作自己的docker镜像(二)</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="http://pool.idyi.net/docker/docker-volumns/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">docker管理容器的数据(VOLUMNS)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hippool" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2021 河马的池塘.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="http://pool.idyi.net/js/menu.js"></script>
+</body>
+</html>

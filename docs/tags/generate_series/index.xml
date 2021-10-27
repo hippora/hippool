@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>generate_series on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/generate_series/</link>
+    <description>Recent content in generate_series on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Tue, 03 Mar 2015 09:54:53 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/generate_series/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>postgresql表记录返回函数</title>
+      <link>http://pool.idyi.net/postgres/postgres-func-generate/</link>
+      <pubDate>Tue, 03 Mar 2015 09:54:53 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-func-generate/</guid>
+      <description>&lt;p&gt;主要是两个函数generate_series, generate_subscripts 一个关键字 with ordinality&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>postgresql在线备份与恢复(三) - 河马的池塘</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:title" content="postgresql在线备份与恢复(三)" />
+<meta property="og:description" content="这次使用更底层的API函数来进行备份,然后恢复到某一个时点(PITR)" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://pool.idyi.net/postgres/postgres-backup-restore-ol-3/" /><meta property="article:section" content="postgres" />
+<meta property="article:published_time" content="2015-02-13T17:09:59+08:00" />
+<meta property="article:modified_time" content="2015-02-13T17:09:59+08:00" />
+
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="http://pool.idyi.net/css/style.css">
+	
+
+	<link rel="shortcut icon" href="http://pool.idyi.net/favicon.ico">
+		
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-92973579-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="http://pool.idyi.net/" title="河马的池塘" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">河马的池塘</div>
+					<div class="logo__tagline">一些技术笔记</div>
+				</div>
+		</a>
+	</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="http://pool.idyi.net/about">
+				<i class='fa fa-info-circle'></i>
+				<span class="menu__text">ABOUT ME</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">postgresql在线备份与恢复(三)</h1>
+			<div class="post__meta meta"><div class="meta__item-author meta__item">
+	<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2 0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class="meta__text">Hippo</span>
+</div>
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class="meta__text" datetime="2015-02-13T17:09:59&#43;08:00">2015-02-13</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg><span class="meta__text"><a class="meta__link" href="http://pool.idyi.net/categories/postgresql/" rel="category">postgresql</a>
+	</span>
+</div></div>
+		</header>
+		
+<div class="post__toc toc">
+	<div class="toc__title">Page content</div>
+	<div class="toc__menu">
+		<nav id="TableOfContents">
+  <ul>
+    <li><a href="#备份一个基础备份使用底层api">备份一个基础备份,使用底层API</a>
+      <ul>
+        <li><a href="#确保你已经开启了归档">确保你已经开启了归档</a></li>
+        <li><a href="#执行pg_start_backup命令开始备份">执行pg_start_backup命令开始备份</a></li>
+        <li><a href="#使用操作系统命令备份clustertablespace归档文件">使用操作系统命令备份cluster,tablespace,归档文件.</a></li>
+        <li><a href="#执行pg_stop_backup结束备份">执行pg_stop_backup结束备份</a></li>
+        <li><a href="#制造一些测试数据来测试">制造一些测试数据来测试</a></li>
+        <li><a href="#备份归档">备份归档</a></li>
+      </ul>
+    </li>
+    <li><a href="#基于时间点的恢复pitr">基于时间点的恢复(PITR)</a>
+      <ul>
+        <li><a href="#模拟破坏数据库">模拟破坏数据库</a></li>
+        <li><a href="#使用基础备份与归档进行备份">使用基础备份与归档进行备份</a></li>
+      </ul>
+    </li>
+    <li><a href="#注意点">注意点</a></li>
+  </ul>
+</nav>
+	</div>
+</div><div class="content post__content clearfix">
+			<p>这次使用更底层的API函数来进行备份,然后恢复到某一个时点(PITR)</p>
+<h2 id="备份一个基础备份使用底层api">备份一个基础备份,使用底层API</h2>
+<h3 id="确保你已经开启了归档">确保你已经开启了归档</h3>
+<p><em>可以通过检查参数设置,找到归档目录,手动切换wal日志来查看是否可以正确归档</em></p>
+<pre tabindex="0"><code>postgres=# select name,setting from pg_settings where name like 'archive%' or name = 'wal_level';
+      name       |                                   setting
+-----------------+------------------------------------------------------------------------------
+ archive_command | test ! -f /var/lib/pgsql/pg_archive/%f &amp;&amp; cp %p /var/lib/pgsql/pg_archive/%f
+ archive_mode    | on
+ archive_timeout | 0
+ wal_level       | archive
+(4 rows)
+</code></pre><p><strong>进入归档目录查看当前最大字符的归档名</strong></p>
+<pre tabindex="0"><code>[postgres@fnddb pg_archive]$ ll
+total 311304
+......
+-rw-------. 1 postgres postgres 16777216 Feb 13 01:13 000000020000000000000010
+-rw-------. 1 postgres postgres 16777216 Feb 13 19:13 000000020000000000000011
+-rw-------. 1 postgres postgres       41 Feb 13 01:02 00000002.history
+</code></pre><p><strong>切换一下日志并再次检查</strong></p>
+<pre tabindex="0"><code>[postgres@fnddb pg_archive]$ ll -r &amp;&amp; psql -c &quot;select pg_switch_xlog()&quot;
+total 311304
+-rw-------. 1 postgres postgres       41 Feb 13 01:02 00000002.history
+-rw-------. 1 postgres postgres 16777216 Feb 13 19:13 000000020000000000000011
+[postgres@fnddb pg_archive]$ ll -r
+total 327688
+-rw-------. 1 postgres postgres       41 Feb 13 01:02 00000002.history
+-rw-------. 1 postgres postgres 16777216 Feb 13 19:17 000000020000000000000012
+</code></pre><blockquote>
+<p>如果数据库没有任何活动,有可能切换不会进行归档</p>
+</blockquote>
+<h3 id="执行pg_start_backup命令开始备份">执行pg_start_backup命令开始备份</h3>
+<p><em>使用superuser执行, 150213basebackup 是一个标签</em></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ psql -c &quot;select pg_start_backup('150213basebackup')&quot;
+ pg_start_backup
+-----------------
+ 0/14000028
+(1 row)
+</code></pre><h3 id="使用操作系统命令备份clustertablespace归档文件">使用操作系统命令备份cluster,tablespace,归档文件.</h3>
+<pre tabindex="0"><code>[postgres@fnddb pgsql]$ tar -cjvf ~/basebk150213.tbz2 /var/lib/pgsql/data /var/lib/pgsql/tsdata /var/lib/pgsql/tsdata02 --exclude /var/lib/pgsql/data/postmaster.opts --exclude /var/lib/pgsql/data/postmaster.pid --exclude /var/lib/pgsql/data/pg_xlog --exclude /var/lib/pgsql/data/pg_replslot
+</code></pre><p><strong>需要排除一些文件无需归档</strong></p>
+<ul>
+<li>postmaster.opts,postmaster.pid &ndash;这是pg服务器进程的信息,不需要备份</li>
+<li>pg_xlog &ndash;当前的wal日志,还原时可能已经过期,我们需要归档.</li>
+<li>pg_replslot &ndash;replication使用的,无需备份</li>
+</ul>
+<h3 id="执行pg_stop_backup结束备份">执行pg_stop_backup结束备份</h3>
+<pre tabindex="0"><code>[postgres@fnddb pgsql]$ psql -c &quot;select pg_stop_backup()&quot;
+NOTICE:  pg_stop_backup complete, all required WAL segments have been archived
+ pg_stop_backup
+----------------
+ 0/140000B8
+(1 row)
+</code></pre><h3 id="制造一些测试数据来测试">制造一些测试数据来测试</h3>
+<p><em>建两个表在不同的时间点各插入一批数据</em></p>
+<pre tabindex="0"><code>[postgres@fnddb pgsql]$ psql database1
+psql (9.4.1)
+Type &quot;help&quot; for help.
+
+database1=# \! date
+Fri Feb 13 19:59:28 CST 2015
+database1=# create table t_19_59_28(id int);
+CREATE TABLE
+database1=# insert into t_19_59_28 select generate_series(1,10000);
+INSERT 0 10000
+database1=# select now();
+              now
+-------------------------------
+ 2015-02-13 20:04:49.63197+08
+(1 row)
+database1=# create table t_20_04_49(id int);
+CREATE TABLE
+database1=# insert into t_20_04_49 select generate_series(1,10000);
+INSERT 0 10000
+database1=# select now();
+              now
+-------------------------------
+ 2015-02-13 20:05:52.15099+08
+(1 row)
+database1=# insert into t_19_59_28 select generate_series(1,10000);
+INSERT 0 10000
+database1=# select now();
+              now
+-------------------------------
+ 2015-02-13 20:06:54.926986+08
+(1 row)
+database1=# select pg_switch_xlog();
+ pg_switch_xlog
+----------------
+ 0/151FE288
+(1 row)
+
+database1=# insert into t_20_04_49 select generate_series(1,10000);
+INSERT 0 10000
+database1=# select now();
+              now
+-------------------------------
+ 2015-02-13 20:08:35.060989+08
+(1 row)
+</code></pre><h3 id="备份归档">备份归档</h3>
+<pre tabindex="0"><code>[postgres@fnddb pgsql]$ ll -r pg_archive/
+total 442380
+-rw-------. 1 postgres postgres       41 Feb 13 01:02 00000002.history
+-rw-------. 1 postgres postgres 16777216 Feb 13 20:08 000000020000000000000015
+-rw-------. 1 postgres postgres      303 Feb 13 19:52 000000020000000000000014.00000028.backup
+-rw-------. 1 postgres postgres 16777216 Feb 13 19:52 000000020000000000000014
+-rw-------. 1 postgres postgres 16777216 Feb 13 19:23 000000020000000000000013
+......
+</code></pre><p><em>为了方便,我备份了所有timeline= 00000002开头的归档,实际上只需要&gt;= 000000020000000000000014 的归档即可.</em>
+<em>详细可以见上一篇文章</em></p>
+<pre tabindex="0"><code>[postgres@fnddb pg_archive]$ tar -cjvf ~/basebk150213_arch.tbz2 00000002*
+00000002000000000000000F
+000000020000000000000010
+000000020000000000000011
+000000020000000000000012
+000000020000000000000013
+000000020000000000000014
+000000020000000000000014.00000028.backup
+000000020000000000000015
+00000002.history
+</code></pre><h2 id="基于时间点的恢复pitr">基于时间点的恢复(PITR)</h2>
+<h3 id="模拟破坏数据库">模拟破坏数据库</h3>
+<p>模拟数据库正常运作</p>
+<pre tabindex="0"><code>database1=# insert into t_19_59_28 select generate_series(1,10000);
+INSERT 0 10000
+database1=# insert into t_20_04_49 select generate_series(1,10000);
+INSERT 0 10000
+database1=# select count(*) from t_19_59_28;
+ count
+-------
+ 30000
+(1 row)
+
+database1=# select count(*) from t_20_04_49;
+ count
+-------
+ 30000
+(1 row)
+
+database1=# select pg_switch_xlog();
+ pg_switch_xlog
+----------------
+ 0/161DC3E8
+(1 row)
+
+[postgres@fnddb pg_archive]$ ll -r
+total 458764
+-rw-------. 1 postgres postgres       41 Feb 13 01:02 00000002.history
+-rw-------. 1 postgres postgres 16777216 Feb 13 21:19 000000020000000000000016 --此归档未备份
+</code></pre><p>假设数据库已经破坏,归档日志已经全部丢失.</p>
+<pre tabindex="0"><code>[postgres@fnddb pgsql]$ rm -rf data
+[postgres@fnddb pgsql]$ rm -rf pg_archive
+[postgres@fnddb pgsql]$ rm -rf tsdata
+[postgres@fnddb pgsql]$ rm -rf tsdata02
+</code></pre><p>数据库操作报错,过一会数据库就崩溃关闭了</p>
+<pre tabindex="0"><code>database1=# select count(*) from t_20_04_49;
+ERROR:  could not open file &quot;base/16385/16403&quot;: No such file or directory
+database1=# insert into t_20_04_49 select generate_series(1,10000);
+ERROR:  could not open file &quot;base/16385/16403&quot;: No such file or directory
+database1=# insert into t_20_04_49 select generate_series(1,10000);
+server closed the connection unexpectedly
+        This probably means the server terminated abnormally
+        before or while processing the request.
+The connection to the server was lost. Attempting reset: Failed.
+</code></pre><h3 id="使用基础备份与归档进行备份">使用基础备份与归档进行备份</h3>
+<h4 id="如果数据库还未关闭则立即关闭">如果数据库还未关闭,则立即关闭</h4>
+<pre tabindex="0"><code>[postgres@fnddb pgsql]$ pg_ctl stop -m fast
+</code></pre><h4 id="解压缩基础备份到相应目录解压归档日志">解压缩基础备份到相应目录,解压归档日志</h4>
+<p><em>由于备份时指定了绝对路径目录结构一起备份了,这里指定根目录</em></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ tar -xjvf basebk150213.tbz2 -C /
+......
+var/lib/pgsql/tsdata/PG_9.4_201409291/16385/16397
+var/lib/pgsql/tsdata02/
+var/lib/pgsql/tsdata02/PG_9.4_201409291/
+[postgres@fnddb ~]$ mkdir basebk150213_arch
+[postgres@fnddb ~]$ tar -xjvf basebk150213_arch.tbz2 -C basebk150213_arch
+......
+000000020000000000000014
+000000020000000000000014.00000028.backup
+000000020000000000000015
+00000002.history
+</code></pre><h4 id="恢复期间禁止用户登录">恢复期间禁止用户登录</h4>
+<p><em>修改pg_hba.conf,方法略</em></p>
+<h4 id="配置recoveryconf文件">配置recovery.conf文件</h4>
+<p><em>这里我想只还原到t_19_59_28表创建好,并插入了10000条记录, t_20_04_49表还未创建</em></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ cd $PGDATA
+[postgres@fnddb data]$ cp /usr/local/pgsql/share/recovery.conf.sample recovery.conf
+[postgres@fnddb data]$ vi recovery.conf
+......
+restore_command = 'cp /home/postgres/basebk150213_arch/%f %p'
+recovery_target_time = '2015-02-13 20:04:49.63197+08'
+recovery_target_inclusive = true        --指示如果这个时间点上的commit是否要包括进去.true就是包括
+</code></pre><blockquote>
+<p><em>这里需要注意: recovery_target_time 设置的时间格式,使用pg的now函数输出的格式</em>
+<em>如果使用诸如linux下date命令的格式填写的话,会转换错误</em>
+<em>之前我实验填写的是Fri Feb 13 20:04:49 CST 2015,结果恢复时转换成了2015-02-14 10:04:49+08,导致恢复点错误.</em>
+<em>不知道是不是PG的BUG</em></p>
+</blockquote>
+<h4 id="启动服务进程进行恢复">启动服务进程进行恢复</h4>
+<pre tabindex="0"><code>[postgres@fnddb data]$ pg_ctl start
+[postgres@fnddb data]$ tail pg_log/postgresql-13_220103.csv
+......
+FATAL,XX000,&quot;required WAL directory &quot;&quot;pg_xlog&quot;&quot; does not exist&quot;
+......
+</code></pre><p><em>检查日志发现没有pg_xlog,想起来是当初备份的时候排除了pg_xlog和pg_replslot</em></p>
+<pre tabindex="0"><code>[postgres@fnddb data]$ mkdir pg_xlog pg_replslot
+[postgres@fnddb data]$ pg_ctl start
+server starting
+[postgres@fnddb data]$ vi pg_log/postgresql-13_232942.csv
+2015-02-13 23:29:42.109 CST,,,14378,,54de1866.382a,1,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;ending log output to stderr&quot;,,&quot;Future log output will go to log destination &quot;&quot;csvlog&quot;&quot;.&quot;,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.112 CST,,,14380,,54de1866.382c,1,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;database system was interrupted; last known up at 2015-02-13 19:23:06 CST&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.112 CST,,,14380,,54de1866.382c,2,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;creating missing WAL directory &quot;&quot;pg_xlog/archive_status&quot;&quot;&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.113 CST,,,14380,,54de1866.382c,3,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;starting point-in-time recovery to 2015-02-13 20:04:49.63197+08&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.121 CST,,,14380,,54de1866.382c,4,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;restored log file &quot;&quot;00000002.history&quot;&quot; from archive&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.157 CST,,,14380,,54de1866.382c,5,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;restored log file &quot;&quot;000000020000000000000014&quot;&quot; from archive&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.162 CST,,,14380,,54de1866.382c,6,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;redo starts at 0/14000090&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.163 CST,,,14380,,54de1866.382c,7,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;consistent recovery state reached at 0/140000B8&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.199 CST,,,14380,,54de1866.382c,8,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;restored log file &quot;&quot;000000020000000000000015&quot;&quot; from archive&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.252 CST,,,14380,,54de1866.382c,9,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;recovery stopping before commit of transaction 1837, time 2015-02-13 20:05:04.931385+08&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.252 CST,,,14380,,54de1866.382c,10,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;redo done at 0/150C2A10&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.252 CST,,,14380,,54de1866.382c,11,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;last completed transaction was at log time 2015-02-13 20:03:02.823509+08&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.265 CST,,,14380,,54de1866.382c,12,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;selected new timeline ID: 3&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.272 CST,,,14380,,54de1866.382c,13,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;restored log file &quot;&quot;00000002.history&quot;&quot; from archive&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.358 CST,,,14380,,54de1866.382c,14,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;archive recovery complete&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.462 CST,,,14389,,54de1866.3835,1,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;autovacuum launcher started&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.463 CST,,,14378,,54de1866.382a,2,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;database system is ready to accept connections&quot;,,,,,,,,,&quot;&quot;
+2015-02-13 23:29:42.472 CST,,,14390,,54de1866.3836,1,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;archive command failed with exit code 1&quot;,&quot;The failed archive command was: test ! -f /var/lib/pgsql/pg_archive/00000003.history &amp;&amp; cp pg_xlog/00000003.history /var/lib/pgsql/pg_archive/00000003.history&quot;,,,,,,,,&quot;&quot;
+2015-02-13 23:29:43.483 CST,,,14390,,54de1866.3836,2,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;archive command failed with exit code 1&quot;,&quot;The failed archive command was: test ! -f /var/lib/pgsql/pg_archive/00000003.history &amp;&amp; cp pg_xlog/00000003.history /var/lib/pgsql/pg_archive/00000003.history&quot;,,,,,,,,&quot;&quot;
+2015-02-13 23:29:44.493 CST,,,14390,,54de1866.3836,3,,2015-02-13 23:29:42 CST,,0,LOG,00000,&quot;archive command failed with exit code 1&quot;,&quot;The failed archive command was: test ! -f /var/lib/pgsql/pg_archive/00000003.history &amp;&amp; cp pg_xlog/00000003.history /var/lib/pgsql/pg_archive/00000003.history&quot;,,,,,,,,&quot;&quot;
+2015-02-13 23:29:44.493 CST,,,14390,,54de1866.3836,4,,2015-02-13 23:29:42 CST,,0,WARNING,01000,&quot;archiving transaction log file &quot;&quot;00000003.history&quot;&quot; failed too many times, will try again later&quot;,,,,,,,,,&quot;&quot;
+[postgres@fnddb data]$ mkdir /var/lib/pgsql/pg_archive/
+</code></pre><blockquote>
+<p>日志中可以看到是进行了PITR恢复,并生成了新的Time line ID:3
+停止在了这里: recovery stopping before commit of transaction 1837, time 2015-02-13 20:05:04.931385+08</p>
+</blockquote>
+<p><em>报错是:归档目录之前模拟破坏被删除</em></p>
+<h4 id="进行确认检查">进行确认检查</h4>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ psql database1
+psql (9.4.1)
+Type &quot;help&quot; for help.
+
+database1=# \dt
+           List of relations
+ Schema |    Name    | Type  |  Owner
+--------+------------+-------+----------
+ public | t3         | table | hippo
+ public | t4         | table | postgres
+ public | t_19_59_28 | table | postgres
+(3 rows)
+
+database1=# select count(*) from t_19_59_28;
+ count
+-------
+ 10000
+(1 row)
+</code></pre><h4 id="设置服务器可以接受外部连接">设置服务器可以接受外部连接</h4>
+<p><em>修改pg_hba.conf配置文件</em></p>
+<h2 id="注意点">注意点</h2>
+<ul>
+<li>pg_xlog, pg_replslot 备份的时候最好能够只排除里面的内容,文件夹保留</li>
+<li>恢复的时候最好检查一下表空间连接及实际的表空间目录是否恢复正确.如需要更改路径,需要先修改软连接</li>
+<li>归档目录也需要检查一下,恢复前先确认</li>
+</ul>
+<p>未完待续&hellip;&hellip;</p>
+<p>//END</p>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/backup/" rel="tag">backup</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/restore/" rel="tag">restore</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/wal/" rel="tag">wal</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/pitr/" rel="tag">pitr</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="Hippo avatar" src="http://pool.idyi.net/img/avatar.jpg" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About Hippo</span>
+	</div>
+	<div class="authorbox__description">
+		Hippo&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+	</div>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="http://pool.idyi.net/postgres/postgres-backup-restore-ol-2/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">postgresql在线备份与恢复(二)</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="http://pool.idyi.net/postgres/postgres-backup-restore-ol-4/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">postgresql在线备份与恢复(四)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hippool" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2021 河马的池塘.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="http://pool.idyi.net/js/menu.js"></script>
+</body>
+</html>

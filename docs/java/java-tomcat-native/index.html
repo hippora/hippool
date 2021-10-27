@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>安装tomcat-native - 河马的池塘</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:title" content="安装tomcat-native" />
+<meta property="og:description" content="安装tomcat-native过程曲折,故记一下." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://pool.idyi.net/java/java-tomcat-native/" /><meta property="article:section" content="java" />
+<meta property="article:published_time" content="2016-01-21T11:09:14+08:00" />
+<meta property="article:modified_time" content="2016-01-21T11:09:14+08:00" />
+
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="http://pool.idyi.net/css/style.css">
+	
+
+	<link rel="shortcut icon" href="http://pool.idyi.net/favicon.ico">
+		
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-92973579-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="http://pool.idyi.net/" title="河马的池塘" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">河马的池塘</div>
+					<div class="logo__tagline">一些技术笔记</div>
+				</div>
+		</a>
+	</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="http://pool.idyi.net/about">
+				<i class='fa fa-info-circle'></i>
+				<span class="menu__text">ABOUT ME</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">安装tomcat-native</h1>
+			<div class="post__meta meta"><div class="meta__item-author meta__item">
+	<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2 0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class="meta__text">Hippo</span>
+</div>
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class="meta__text" datetime="2016-01-21T11:09:14&#43;08:00">2016-01-21</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg><span class="meta__text"><a class="meta__link" href="http://pool.idyi.net/categories/java/" rel="category">java</a>
+	</span>
+</div></div>
+		</header>
+		
+<div class="post__toc toc">
+	<div class="toc__title">Page content</div>
+	<div class="toc__menu">
+		<nav id="TableOfContents">
+  <ul>
+    <li><a href="#下载相关软件">下载相关软件</a></li>
+    <li><a href="#安装apr">安装apr</a></li>
+    <li><a href="#安装apr-iconv">安装apr-iconv</a></li>
+    <li><a href="#安装apr-util">安装apr-util</a></li>
+    <li><a href="#安装openssl102">安装openssl1.0.2</a></li>
+    <li><a href="#安装tomcat-native">安装tomcat-native</a></li>
+    <li><a href="#配置">配置</a></li>
+    <li><a href="#验证">验证</a></li>
+  </ul>
+</nav>
+	</div>
+</div><div class="content post__content clearfix">
+			<p>安装tomcat-native过程曲折,故记一下.</p>
+<h1 id="centos-下tomcat-native-安装">centos 下tomcat-native 安装</h1>
+<blockquote>
+<p>root用户下</p>
+</blockquote>
+<h2 id="下载相关软件">下载相关软件</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">wget http://apache.opencas.org//apr/apr-1.5.2.tar.gz
+wget http://apache.opencas.org//apr/apr-util-1.5.4.tar.gz
+wget http://apache.opencas.org//apr/apr-iconv-1.2.1.tar.gz
+wget https://www.openssl.org/source/openssl-1.0.2e.tar.gz
+wget http://mirrors.cnnic.cn/apache/tomcat/tomcat-connectors/native/1.2.4/source/tomcat-native-1.2.4-src.tar.gz
+</code></pre></div><h2 id="安装apr">安装apr</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tar -xzf apr-1.5.2.tar.gz <span style="color:#f92672">&amp;&amp;</span> cd apr-1.5.2
+./configure --prefix<span style="color:#f92672">=</span>/usr/local/apr
+make <span style="color:#f92672">&amp;&amp;</span> make install
+...
+rm: cannot remove <span style="color:#e6db74">`</span>libtoolT<span style="color:#960050;background-color:#1e0010">&#39;</span>: No such file or directory
+...
+</code></pre></div><blockquote>
+<p>30206行注释#    $RM &ldquo;$cfgfile&rdquo;</p>
+</blockquote>
+<h2 id="安装apr-iconv">安装apr-iconv</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tar -xzf apr-iconv-1.2.1.tar.gz <span style="color:#f92672">&amp;&amp;</span> cd apr-iconv-1.2.1
+./configure --prefix<span style="color:#f92672">=</span>/usr/local/apr-iconv --with-apr<span style="color:#f92672">=</span>/usr/local/apr
+make <span style="color:#f92672">&amp;&amp;</span> make install
+</code></pre></div><h2 id="安装apr-util">安装apr-util</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tar -xzf apr-util-1.5.4.tar.gz <span style="color:#f92672">&amp;&amp;</span> cd apr-util-1.5.4
+./configure --prefix<span style="color:#f92672">=</span>/usr/local/apr-util  --with-apr<span style="color:#f92672">=</span>/usr/local/apr  --with-apr-iconv<span style="color:#f92672">=</span>/usr/local/apr-iconv/bin/apriconv
+make <span style="color:#f92672">&amp;&amp;</span> make install
+</code></pre></div><h2 id="安装openssl102">安装openssl1.0.2</h2>
+<blockquote>
+<p>如系统已经是1.0.2就没必要装</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tar -xzf openssl-1.0.2e.tar.gz <span style="color:#f92672">&amp;&amp;</span> cd openssl-1.0.2e
+./config --prefix<span style="color:#f92672">=</span>/usr/local/openssl -fPIC
+make <span style="color:#f92672">&amp;&amp;</span> make install
+</code></pre></div><blockquote>
+<p>-fPIC参数不加,后面编译tomcat-native会报错,见下</p>
+</blockquote>
+<h2 id="安装tomcat-native">安装tomcat-native</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tar -xzf tomcat-native-1.2.4-src.tar.gz <span style="color:#f92672">&amp;&amp;</span> cd tomcat-native-1.2.4-src/native
+./configure --with-apr<span style="color:#f92672">=</span>/usr/local/apr --with-java-home<span style="color:#f92672">=</span>/etc/alternatives/java_sdk --with-ssl<span style="color:#f92672">=</span>/usr/local/openssl
+make <span style="color:#f92672">&amp;&amp;</span> make install
+...
+
+checking OpenSSL library version &gt;<span style="color:#f92672">=</span> 1.0.2...
+Found   OPENSSL_VERSION_NUMBER 0x1000105f <span style="color:#f92672">(</span>OpenSSL 1.0.1e <span style="color:#ae81ff">11</span> Feb 2013<span style="color:#f92672">)</span>
+Require OPENSSL_VERSION_NUMBER 0x1000200f or greater <span style="color:#f92672">(</span>1.0.2<span style="color:#f92672">)</span>
+not compatible
+...
+</code></pre></div><blockquote>
+<p>centos 上用yum暂时只能更新到1.0.1e.需要手动安装</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">...
+/usr/local/openssl/lib/libssl.a: could not read symbols: Bad value
+...
+</code></pre></div><blockquote>
+<p>编译openssl时加上参数 <code>-fPIC</code></p>
+</blockquote>
+<h2 id="配置">配置</h2>
+<ul>
+<li><em>全局</em></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">vi /etc/profile.d/my.sh
+export LD_LIBRARY_PATH<span style="color:#f92672">=</span>$LD_LIBRARY_PATH:/usr/local/apr/lib
+</code></pre></div><blockquote>
+<p>my.sh 自己取的名字,建议不直接修改<code>/etc/profile</code></p>
+</blockquote>
+<ul>
+<li><em>针对tomcat</em></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">vi $CATALINA_HOME/bin/setenv.sh
+export LD_LIBRARY_PATH<span style="color:#f92672">=</span>$LD_LIBRARY_PATH:/usr/local/apr/lib
+
+</code></pre></div><blockquote>
+<p><code>setenv.sh</code>没有的话自己创建,不要写在<code>catalina.sh</code>中.</p>
+</blockquote>
+<h2 id="验证">验证</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tail -f catalina.out
+......
+21-Jan-2016 11:42:24.442 INFO <span style="color:#f92672">[</span>main<span style="color:#f92672">]</span> org.apache.catalina.core.AprLifecycleListener.lifecycleEvent Loaded APR based Apache Tomcat Native library 1.2.4 using APR version 1.5.2.
+21-Jan-2016 11:42:24.443 INFO <span style="color:#f92672">[</span>main<span style="color:#f92672">]</span> org.apache.catalina.core.AprLifecycleListener.lifecycleEvent APR capabilities: IPv6 <span style="color:#f92672">[</span>true<span style="color:#f92672">]</span>, sendfile <span style="color:#f92672">[</span>true<span style="color:#f92672">]</span>, accept filters <span style="color:#f92672">[</span>false<span style="color:#f92672">]</span>, random <span style="color:#f92672">[</span>true<span style="color:#f92672">]</span>.
+21-Jan-2016 11:42:24.446 INFO <span style="color:#f92672">[</span>main<span style="color:#f92672">]</span> org.apache.catalina.core.AprLifecycleListener.initializeSSL OpenSSL successfully initialized <span style="color:#f92672">(</span>OpenSSL 1.0.2e <span style="color:#ae81ff">3</span> Dec 2015<span style="color:#f92672">)</span>
+21-Jan-2016 11:42:24.520 INFO <span style="color:#f92672">[</span>main<span style="color:#f92672">]</span> org.apache.coyote.AbstractProtocol.init Initializing ProtocolHandler <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;http-apr-8080&#34;</span><span style="color:#f92672">]</span>
+......
+</code></pre></div><p>//END</p>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/tomcat/" rel="tag">tomcat</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/native/" rel="tag">native</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="Hippo avatar" src="http://pool.idyi.net/img/avatar.jpg" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About Hippo</span>
+	</div>
+	<div class="authorbox__description">
+		Hippo&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+	</div>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="http://pool.idyi.net/java/java-maven-install/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">maven安装</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hippool" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2021 河马的池塘.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="http://pool.idyi.net/js/menu.js"></script>
+</body>
+</html>

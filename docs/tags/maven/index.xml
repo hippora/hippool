@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>maven on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/maven/</link>
+    <description>Recent content in maven on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Fri, 25 Sep 2015 10:29:52 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/maven/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>maven安装</title>
+      <link>http://pool.idyi.net/java/java-maven-install/</link>
+      <pubDate>Fri, 25 Sep 2015 10:29:52 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/java/java-maven-install/</guid>
+      <description>&lt;p&gt;linux下maven安装&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

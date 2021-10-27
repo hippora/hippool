@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>container on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/container/</link>
+    <description>Recent content in container on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Wed, 25 May 2016 11:31:46 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/container/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>docker镜像,容器和存储驱动</title>
+      <link>http://pool.idyi.net/docker/docker-image-container-storagedriver/</link>
+      <pubDate>Wed, 25 May 2016 11:31:46 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/docker/docker-image-container-storagedriver/</guid>
+      <description>&lt;p&gt;这篇都是概念性的.主要就是官方文档的笔记.更详细的请参考官方文档.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

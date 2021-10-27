@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>postgresql备份与恢复之SQL Dump - 河马的池塘</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:title" content="postgresql备份与恢复之SQL Dump" />
+<meta property="og:description" content="数据是很宝贵的,要时刻谨记备份的重要性.
+这里讲一下通过SQL Dump方式来做备份与恢复.
+pg_dump 导出某一个数据库,通过将数据库中的结构信息及数据通过sql方式输出来备份数据库.它是在执行命令那一刻时数据库一致性状态的保存.
+恢复时只许将这输出在目标库上重建就可以了.
+跟mysqldump是类似的" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://pool.idyi.net/postgres/postgres-backup-pg_dump1/" /><meta property="article:section" content="postgres" />
+<meta property="article:published_time" content="2015-02-10T16:29:22+08:00" />
+<meta property="article:modified_time" content="2015-02-10T16:29:22+08:00" />
+
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="http://pool.idyi.net/css/style.css">
+	
+
+	<link rel="shortcut icon" href="http://pool.idyi.net/favicon.ico">
+		
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-92973579-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="http://pool.idyi.net/" title="河马的池塘" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">河马的池塘</div>
+					<div class="logo__tagline">一些技术笔记</div>
+				</div>
+		</a>
+	</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="http://pool.idyi.net/about">
+				<i class='fa fa-info-circle'></i>
+				<span class="menu__text">ABOUT ME</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">postgresql备份与恢复之SQL Dump</h1>
+			<div class="post__meta meta"><div class="meta__item-author meta__item">
+	<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2 0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class="meta__text">Hippo</span>
+</div>
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class="meta__text" datetime="2015-02-10T16:29:22&#43;08:00">2015-02-10</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg><span class="meta__text"><a class="meta__link" href="http://pool.idyi.net/categories/postgresql/" rel="category">postgresql</a>
+	</span>
+</div></div>
+		</header>
+		
+<div class="post__toc toc">
+	<div class="toc__title">Page content</div>
+	<div class="toc__menu">
+		<nav id="TableOfContents">
+  <ul>
+    <li><a href="#使用pg_dump命令备份">使用pg_dump命令备份</a></li>
+    <li><a href="#恢复pg_dump出来的文件">恢复pg_dump出来的文件.</a></li>
+    <li><a href="#测试一下如果某个用户不存在会如何">测试一下如果某个用户不存在会如何</a></li>
+    <li><a href="#通过管道直接备份恢复数据库">通过管道直接备份恢复数据库</a></li>
+    <li><a href="#pg_dumpall命令">pg_dumpall命令</a>
+      <ul>
+        <li><a href="#pg_dumpall备份全库">pg_dumpall备份全库</a></li>
+        <li><a href="#恢复pg_dumpall备份的文件">恢复pg_dumpall备份的文件</a></li>
+      </ul>
+    </li>
+    <li><a href="#注意点">注意点</a></li>
+  </ul>
+</nav>
+	</div>
+</div><div class="content post__content clearfix">
+			<p>数据是很宝贵的,要时刻谨记备份的重要性.
+这里讲一下通过SQL Dump方式来做备份与恢复.
+pg_dump 导出某一个数据库,通过将数据库中的结构信息及数据通过sql方式输出来备份数据库.它是在执行命令那一刻时数据库一致性状态的保存.
+恢复时只许将这输出在目标库上重建就可以了.</p>
+<p>跟mysqldump是类似的</p>
+<h2 id="使用pg_dump命令备份">使用pg_dump命令备份</h2>
+<p>pg_dump 默认输出到控制台,不指定参数默认是导出连接着的数据库.</p>
+<pre tabindex="0"><code>[postgres@fnddb data]$ pg_dump | more
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+......
+--
+-- PostgreSQL database dump complete
+--
+</code></pre><p>通常的做法是备份到一个文件中.</p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ pg_dump database1 &gt; db1.dump
+</code></pre><p>可以导出一个schema,当然也可以只导出一个表</p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ pg_dump database2 -n schema01
+
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+......
+ALTER SCHEMA schema01 OWNER TO postgres;
+
+--
+-- PostgreSQL database dump complete
+--
+[postgres@fnddb ~]$ pg_dump -U user2 database2 -t t1 &gt; database2.dump
+</code></pre><p>pg_dump是一个客户端命令行工具,可以通过pg_dump &ndash;help查看</p>
+<h2 id="恢复pg_dump出来的文件">恢复pg_dump出来的文件.</h2>
+<p><strong>使用psql dbname &lt; pgdumpfile</strong></p>
+<blockquote>
+<p>dbname是使用template0创建出来的全新数据库,否则有可能已经有对象在其中.</p>
+</blockquote>
+<p><strong>先查看下要备份的数据库中有哪些表,属于哪些用户</strong></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ psql database1
+psql (9.4.1)
+Type &quot;help&quot; for help.
+
+database1=# \dt
+        List of relations
+ Schema | Name | Type  |  Owner
+--------+------+-------+----------
+ public | t1   | table | user1
+ public | t2   | table | user1
+ public | t3   | table | user2
+ public | tab2 | table | postgres
+ public | tab3 | table | postgres
+(5 rows)
+</code></pre><p><strong>备份数据库database1</strong></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ pg_dump database1 &gt; database1.pgdmp
+</code></pre><p><strong>使用template0创建一个全新数据库</strong></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ createdb -T template0 db01
+</code></pre><p><strong>进行恢复并检查</strong></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ psql db01 &lt; database1.pgdmp
+SET
+SET
+SET
+......
+[postgres@fnddb ~]$ psql db01
+psql (9.4.1)
+Type &quot;help&quot; for help.
+
+db01=# \dt
+        List of relations
+ Schema | Name | Type  |  Owner
+--------+------+-------+----------
+ public | t1   | table | user1
+ public | t2   | table | user1
+ public | t3   | table | user2
+ public | tab2 | table | postgres
+ public | tab3 | table | postgres
+(5 rows)
+
+db01=# select * from t1;
+  id
+-------
+ user1
+(1 row)
+</code></pre><p><em>对象权限数据都还原了</em></p>
+<h2 id="测试一下如果某个用户不存在会如何">测试一下如果某个用户不存在会如何</h2>
+<p><strong>删除user2,需要把user2涉及的对象权限删除或者授权给其他用户</strong></p>
+<pre tabindex="0"><code>database1=# drop role user1;
+ERROR:  role &quot;user1&quot; cannot be dropped because some objects depend on it
+DETAIL:  owner of database database1
+2 objects in database db01
+2 objects in database database2
+database1=# reassign owned by user2 to hippo;
+REASSIGN OWNED
+database1=# \c database2
+You are now connected to database &quot;database2&quot; as user &quot;postgres&quot;.
+database2=# reassign owned by user2 to hippo;
+REASSIGN OWNED
+database2=# \c db01
+You are now connected to database &quot;db01&quot; as user &quot;postgres&quot;.
+db01=# reassign owned by user2 to hippo;
+REASSIGN OWNED
+db01=# revoke create on tablespace ts02 from user2;
+REVOKE
+db01=# alter database database1 owner to hippo;
+ALTER DATABASE
+db01=# drop role user2;
+DROP ROLE
+db01=# \q
+</code></pre><p><strong>尝试恢复</strong></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ createdb -T template0 db02
+[postgres@fnddb ~]$ psql db02 &lt; database1.pgdmp
+SET
+......
+ERROR:  role &quot;user2&quot; does not exist
+......
+[postgres@fnddb ~]$ psql db02
+psql (9.4.1)
+Type &quot;help&quot; for help.
+
+db02=# \dt
+        List of relations
+ Schema | Name | Type  |  Owner
+--------+------+-------+----------
+ public | t1   | table | user1
+ public | t2   | table | user1
+ public | t3   | table | postgres
+ public | tab2 | table | postgres
+ public | tab3 | table | postgres
+(5 rows)
+</code></pre><p><em>授权语句由于没有user2所以失败了,t3 owner变成了postgres,也就是使用psql连接的用户</em></p>
+<p><strong>可以通过参数ON_ERROR_STOP=on来停止继续执行恢复命令</strong></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ createdb -T template0 db03
+[postgres@fnddb ~]$ psql --set ON_ERROR_STOP=on db03 &lt; database1.pgdmp
+SET
+......
+ERROR:  role &quot;user2&quot; does not exist
+[postgres@fnddb ~]$
+</code></pre><h2 id="通过管道直接备份恢复数据库">通过管道直接备份恢复数据库</h2>
+<p><em>通过指定-1选项,可以将恢复进程放在一个事务中</em></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ hostname -i
+192.168.10.74
+[postgres@fnddb ~]$ psql -h 192.168.10.72
+Password:
+psql (9.4.1, server 9.3.5)
+Type &quot;help&quot; for help.
+
+postgres=# create database db01 template template0;
+CREATE DATABASE
+postgres=# \q
+[postgres@fnddb ~]$ pg_dump database1 | psql -1 -h 192.168.10.72 db01
+Password:
+SET
+......
+GRANT
+ERROR:  role &quot;r2&quot; does not exist
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+[postgres@fnddb ~]$ psql -h 192.168.10.72 db01
+Password:
+psql (9.4.1, server 9.3.5)
+Type &quot;help&quot; for help.
+
+db01=# \dt
+No relations found.
+</code></pre><p><strong>把需要的role创建好再试一次</strong></p>
+<pre tabindex="0"><code>db01=# create role user1;
+CREATE ROLE
+db01=# create role user2;
+CREATE ROLE
+db01=# create role r1;
+CREATE ROLE
+db01=# create role r2;
+CREATE ROLE
+db01=# create role jack;
+CREATE ROLE
+db01=# \q
+[postgres@fnddb ~]$ pg_dump database1 | psql -1 -h 192.168.10.72 db01
+Password:
+SET
+.......
+[postgres@fnddb ~]$ psql -h 192.168.10.72 db01
+Password:
+psql (9.4.1, server 9.3.5)
+Type &quot;help&quot; for help.
+
+db01=# \dt
+        List of relations
+ Schema | Name | Type  |  Owner
+--------+------+-------+----------
+ public | t3   | table | hippo
+ public | tab2 | table | postgres
+ public | tab3 | table | postgres
+(3 rows)
+</code></pre><h2 id="pg_dumpall命令">pg_dumpall命令</h2>
+<p>pg_dump只导出一个数据库,并且不导出role,tablespace等cluster级别的对象.
+pg_dumpall导出所有包括role,tablespace及所有数据库.
+pg_dumpall因为要导出role,tablespace信息,所以此命令需要superuser用户</p>
+<h3 id="pg_dumpall备份全库">pg_dumpall备份全库</h3>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ pg_dumpall &gt; all.pgdmp
+</code></pre><p><em>只导出Cluster-wide数据,不包括数据库级别的对象及数据</em></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ pg_dumpall -g &gt; all.pgdmp
+</code></pre><p>可以再使用pg_dump来导出单独一个数据库来使用</p>
+<h3 id="恢复pg_dumpall备份的文件">恢复pg_dumpall备份的文件</h3>
+<p><em>恢复使用psql -f infile来进行,最好是使用一个全新的cluster来进行恢复</em></p>
+<pre tabindex="0"><code>[postgres@fnddb ~]$ pg_dumpall | psql -h 192.168.10.72 -f -
+Password:
+SET
+......
+psql:&lt;stdin&gt;:34: ERROR:  directory &quot;/var/lib/pgsql/tsdata&quot; does not exist
+psql:&lt;stdin&gt;:35: ERROR:  directory &quot;/var/lib/pgsql/tsdata02&quot; does not exist
+psql:&lt;stdin&gt;:36: ERROR:  tablespace &quot;ts02&quot; does not exist
+psql:&lt;stdin&gt;:37: ERROR:  tablespace &quot;ts02&quot; does not exist
+psql:&lt;stdin&gt;:38: ERROR:  tablespace &quot;ts02&quot; does not exist
+psql:&lt;stdin&gt;:45: ERROR:  tablespace &quot;ts01&quot; does not exist
+psql:&lt;stdin&gt;:46: ERROR:  database &quot;database1&quot; does not exist
+psql:&lt;stdin&gt;:47: ERROR:  database &quot;database1&quot; does not exist
+psql:&lt;stdin&gt;:48: ERROR:  database &quot;database1&quot; does not exist
+psql:&lt;stdin&gt;:49: ERROR:  database &quot;database1&quot; does not exist
+psql:&lt;stdin&gt;:50: ERROR:  tablespace &quot;ts01&quot; does not exist
+CREATE DATABASE
+CREATE DATABASE
+CREATE DATABASE
+REVOKE
+REVOKE
+GRANT
+GRANT
+psql:&lt;stdin&gt;:60: \connect: FATAL:  database &quot;database1&quot; does not exist
+</code></pre><p><em>在目标库上的表空间目录需要事先创建好</em>
+然后再重建&hellip;</p>
+<h2 id="注意点">注意点</h2>
+<p>pg_dump,pg_dumpall是备份恢复某一个时刻时,数据库的一致性状态..
+如果需要将数据库从崩溃或丢失数据中,恢复到运行时最新的状态,则需要使用在线备份恢复技术.</p>
+<p>//END</p>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/pg_dump/" rel="tag">pg_dump</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="Hippo avatar" src="http://pool.idyi.net/img/avatar.jpg" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About Hippo</span>
+	</div>
+	<div class="authorbox__description">
+		Hippo&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+	</div>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="http://pool.idyi.net/postgres/postgres-role/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">postgresql role(角色)</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="http://pool.idyi.net/postgres/postgres-backup-pg_dump2/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">postgresql备份恢复之pg_dump大数据处理</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hippool" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2021 河马的池塘.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="http://pool.idyi.net/js/menu.js"></script>
+</body>
+</html>

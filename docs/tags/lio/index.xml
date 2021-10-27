@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>lio on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/lio/</link>
+    <description>Recent content in lio on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Sun, 08 Apr 2018 14:21:11 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/lio/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>LIO的使用</title>
+      <link>http://pool.idyi.net/linux/linux-lio/</link>
+      <pubDate>Sun, 08 Apr 2018 14:21:11 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/linux/linux-lio/</guid>
+      <description>&lt;p&gt;LIO的使用&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

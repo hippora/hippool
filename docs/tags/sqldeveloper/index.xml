@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>sqldeveloper on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/sqldeveloper/</link>
+    <description>Recent content in sqldeveloper on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Mon, 14 Apr 2014 14:20:17 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/sqldeveloper/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>修改sqldeveloper的语言</title>
+      <link>http://pool.idyi.net/modify-sqldeveloper-language/</link>
+      <pubDate>Mon, 14 Apr 2014 14:20:17 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/modify-sqldeveloper-language/</guid>
+      <description>&lt;p&gt;修改sqldeveloper的界面的语言&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

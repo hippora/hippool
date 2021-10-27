@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>partition on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/partition/</link>
+    <description>Recent content in partition on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Tue, 24 Feb 2015 18:01:57 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/partition/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>postgresql中表的继承及分区表(四)</title>
+      <link>http://pool.idyi.net/postgres/postgres-table-inheritance-4/</link>
+      <pubDate>Tue, 24 Feb 2015 18:01:57 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-table-inheritance-4/</guid>
+      <description>&lt;p&gt;这边介绍一下分区的其他方面&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

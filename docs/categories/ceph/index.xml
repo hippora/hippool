@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ceph on 河马的池塘</title>
+    <link>http://pool.idyi.net/categories/ceph/</link>
+    <description>Recent content in ceph on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Sat, 01 Apr 2017 09:12:25 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/categories/ceph/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ceph中RBD使用</title>
+      <link>http://pool.idyi.net/ceph/ceph-use-rbd/</link>
+      <pubDate>Sat, 01 Apr 2017 09:12:25 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/ceph/ceph-use-rbd/</guid>
+      <description>&lt;p&gt;RBD使用&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>ceph修改crush</title>
+      <link>http://pool.idyi.net/ceph/ceph-modify-crush/</link>
+      <pubDate>Wed, 29 Mar 2017 19:12:25 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/ceph/ceph-modify-crush/</guid>
+      <description>&lt;p&gt;修改crush图&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>ceph手动添加osd</title>
+      <link>http://pool.idyi.net/ceph/ceph-add-osd/</link>
+      <pubDate>Wed, 29 Mar 2017 17:22:25 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/ceph/ceph-add-osd/</guid>
+      <description>&lt;p&gt;ceph手动添加osd&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>ceph安装中遇到的问题</title>
+      <link>http://pool.idyi.net/ceph/ceph-install-post/</link>
+      <pubDate>Tue, 28 Mar 2017 18:05:51 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/ceph/ceph-install-post/</guid>
+      <description>&lt;p&gt;ceph安装中遇到的问题及解决方法&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>ceph 安装</title>
+      <link>http://pool.idyi.net/ceph/ceph-install-do/</link>
+      <pubDate>Tue, 28 Mar 2017 17:22:25 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/ceph/ceph-install-do/</guid>
+      <description>&lt;p&gt;ceph 集群安装开始&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>ceph 安装前的准备工作</title>
+      <link>http://pool.idyi.net/ceph/ceph-install-prepare/</link>
+      <pubDate>Tue, 28 Mar 2017 17:02:25 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/ceph/ceph-install-prepare/</guid>
+      <description>&lt;p&gt;ceph(kraken) 安装前的准备工作&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>postgresql.conf on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/postgresql.conf/</link>
+    <description>Recent content in postgresql.conf on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Thu, 05 Feb 2015 15:42:52 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/postgresql.conf/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>postgresql参数的设置</title>
+      <link>http://pool.idyi.net/postgres/postgres-modify-params/</link>
+      <pubDate>Thu, 05 Feb 2015 15:42:52 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-modify-params/</guid>
+      <description>&lt;p&gt;简单研究一下postgresql参数的设置&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

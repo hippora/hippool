@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>sersync on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/sersync/</link>
+    <description>Recent content in sersync on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Mon, 30 Jul 2018 10:19:21 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/sersync/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>rsync&#43;sersync配置</title>
+      <link>http://pool.idyi.net/linux/linux-rsync-sersync/</link>
+      <pubDate>Mon, 30 Jul 2018 10:19:21 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/linux/linux-rsync-sersync/</guid>
+      <description>&lt;p&gt;正好需要用到rsync+sersync.记录一下基本同步配置&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

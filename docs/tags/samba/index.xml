@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>samba on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/samba/</link>
+    <description>Recent content in samba on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Fri, 19 May 2017 15:14:11 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/samba/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>samba 安装配置</title>
+      <link>http://pool.idyi.net/linux/linux-samba-install/</link>
+      <pubDate>Fri, 19 May 2017 15:14:11 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/linux/linux-samba-install/</guid>
+      <description>&lt;p&gt;记录一下samba的安装配置&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

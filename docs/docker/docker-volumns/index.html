@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>docker管理容器的数据(VOLUMNS) - 河马的池塘</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:title" content="docker管理容器的数据(VOLUMNS)" />
+<meta property="og:description" content="可以通过两种方式管理容器中的数据,数据卷(Data Volumns),数据卷容器(Data Volumns containers)" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://pool.idyi.net/docker/docker-volumns/" /><meta property="article:section" content="docker" />
+<meta property="article:published_time" content="2016-05-23T11:28:14+08:00" />
+<meta property="article:modified_time" content="2016-05-23T11:28:14+08:00" />
+
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="http://pool.idyi.net/css/style.css">
+	
+
+	<link rel="shortcut icon" href="http://pool.idyi.net/favicon.ico">
+		
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-92973579-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="http://pool.idyi.net/" title="河马的池塘" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">河马的池塘</div>
+					<div class="logo__tagline">一些技术笔记</div>
+				</div>
+		</a>
+	</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="http://pool.idyi.net/about">
+				<i class='fa fa-info-circle'></i>
+				<span class="menu__text">ABOUT ME</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">docker管理容器的数据(VOLUMNS)</h1>
+			<div class="post__meta meta"><div class="meta__item-author meta__item">
+	<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2 0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class="meta__text">Hippo</span>
+</div>
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class="meta__text" datetime="2016-05-23T11:28:14&#43;08:00">2016-05-23</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg><span class="meta__text"><a class="meta__link" href="http://pool.idyi.net/categories/docker/" rel="category">docker</a>
+	</span>
+</div></div>
+		</header>
+		
+<div class="post__toc toc">
+	<div class="toc__title">Page content</div>
+	<div class="toc__menu">
+		<nav id="TableOfContents">
+  <ul>
+    <li><a href="#数据卷data-volumns">数据卷(Data Volumns)</a>
+      <ul>
+        <li><a href="#概念">概念:</a></li>
+        <li><a href="#添加数据卷">添加数据卷</a></li>
+        <li><a href="#挂载主机目录">挂载主机目录</a></li>
+        <li><a href="#单独创建数据卷">单独创建数据卷</a></li>
+      </ul>
+    </li>
+    <li><a href="#数据卷容器data-volumns-containers">数据卷容器(Data Volumns containers)</a></li>
+  </ul>
+</nav>
+	</div>
+</div><div class="content post__content clearfix">
+			<p>可以通过两种方式管理容器中的数据,数据卷(Data Volumns),数据卷容器(Data Volumns containers)</p>
+<h2 id="数据卷data-volumns">数据卷(Data Volumns)</h2>
+<h3 id="概念">概念:</h3>
+<p><code>data volume</code>存在一个或多个容器中的特殊的目录,它绕过容器的<code>Union File System</code>.用来持久或共享数据.它是独立于容器的生命周期的. 它有几个特点:</p>
+<ol>
+<li>容器创建好后会初始化数据卷.如果基础镜像在此挂载点上有数据,它会将数据复制到数据卷里.(挂在主机的目录则不会复制)</li>
+<li>数据卷可以被多个容器共享使用</li>
+<li>对数据卷的修改是直接的.</li>
+<li>对数据卷的更改,不会因为你更新镜像而被包括进去.</li>
+<li>就算容器被删除,数据卷还继续存在.</li>
+</ol>
+<h3 id="添加数据卷">添加数据卷</h3>
+<pre tabindex="0"><code>[root@srv00 ~]# docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+hippo/nginx         v1                  2e1513eeaa0a        2 days ago          281.1 MB
+hippo/nginx         v1.10               1e20546f8434        2 days ago          281.1 MB
+[root@srv00 ~]# docker run -it -v /etc/nginx hippo/nginx:v1.10
+[root@bab2e5725220 /]# ll /etc/nginx/
+total 32
+drwxr-xr-x 2 root root   25 May 20 07:40 conf.d
+...
+</code></pre><blockquote>
+<p>可以看到容器内的数据卷目录中,是原有的<code>/etc/nginx</code>目录的内容.</p>
+</blockquote>
+<p>可以修改一个文件配置看看.并检查主机上对应的数据卷内容.</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED              STATUS                      PORTS                   NAMES
+bab2e5725220        hippo/nginx:v1.10   &quot;/bin/bash&quot;              About a minute ago   Exited (0) 15 seconds ago                           hungry_jennings
+[root@srv00 ~]# docker inspect bab2e5725220
+...
+        &quot;Mounts&quot;: [
+            {
+                &quot;Name&quot;: &quot;b6c506a65d5f495ca6ce06aeb30bb6472295d459bfbeb464e89681e17ffe3541&quot;,
+                &quot;Source&quot;: &quot;/var/lib/docker/volumes/b6c506a65d5f495ca6ce06aeb30bb6472295d459bfbeb464e89681e17ffe3541/_data&quot;,
+                &quot;Destination&quot;: &quot;/etc/nginx&quot;,
+                &quot;Driver&quot;: &quot;local&quot;,
+                &quot;Mode&quot;: &quot;&quot;,
+                &quot;RW&quot;: true,
+                &quot;Propagation&quot;: &quot;&quot;
+            }
+...
+
+[root@srv00 _data]# docker rm bab2e5725220
+bab2e5725220
+[root@srv00 ~]# cat /var/lib/docker/volumes/b6c506a65d5f495ca6ce06aeb30bb6472295d459bfbeb464e89681e17ffe3541/_data/nginx.conf
+...
+</code></pre><blockquote>
+<p>对数据卷的修改直接持久在主机对应的地方..就算容器已经关闭或删除.</p>
+</blockquote>
+<h3 id="挂载主机目录">挂载主机目录</h3>
+<pre tabindex="0"><code>[root@srv00 ~]# mkdir nginx
+[root@srv00 ~]# docker run -it -v /root/nginx:/etc/nginx hippo/nginx:v1.10
+[root@c0750f9779b3 /]# ll /etc/nginx/  &lt;===无内容
+[root@srv00 ~]# docker ps -l
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                          PORTS                   NAMES
+c0750f9779b3        hippo/nginx:v1.10   &quot;/bin/bash&quot;              23 seconds ago      Exited (0) 11 seconds ago                               agitated_mclean
+[root@srv00 ~]# docker inspect c0750f9779b3
+...
+        &quot;Mounts&quot;: [
+            {
+                &quot;Source&quot;: &quot;/root/nginx&quot;,
+                &quot;Destination&quot;: &quot;/etc/nginx&quot;,
+                &quot;Mode&quot;: &quot;&quot;,
+                &quot;RW&quot;: true,
+                &quot;Propagation&quot;: &quot;rprivate&quot;
+            }
+...
+</code></pre><blockquote>
+<p>可以看到是主机的对应目录挂载到容器内.<code>RW</code>是可读写标志,效果和mount命令一致.</p>
+</blockquote>
+<p>如果是相对目录:</p>
+<pre tabindex="0"><code>[root@srv00 ~]# mkdir -p a/b
+[root@srv00 ~]# touch a/b/c
+[root@srv00 ~]# docker run -it -v a/b:/etc/nginx hippo/nginx:v1.10
+docker: Error response from daemon: create a/b: &quot;a/b&quot; includes invalid characters for a local volume name, only &quot;[a-zA-Z0-9][a-zA-Z0-9_.-]&quot; are allowed.
+See 'docker run --help'.
+[root@srv00 ~]# docker run -it -v nginx:/etc/nginx hippo/nginx:v1.10
+e4e2f137a7412f6474018e88985e2f605b5f77f2cd1ce27280142994e5feb030
+[root@srv00 ~]# docker inspect e4e2f137a7412f6474018e88985e2f605b5f77f2cd1ce27280142994e5feb030
+...
+        &quot;Mounts&quot;: [
+            {
+                &quot;Name&quot;: &quot;nginx&quot;,
+                &quot;Source&quot;: &quot;/var/lib/docker/volumes/nginx/_data&quot;,
+                &quot;Destination&quot;: &quot;/etc/nginx&quot;,
+                &quot;Driver&quot;: &quot;local&quot;,
+                &quot;Mode&quot;: &quot;z&quot;,
+                &quot;RW&quot;: true,
+                &quot;Propagation&quot;: &quot;rprivate&quot;
+            }
+...
+</code></pre><blockquote>
+<p>主机不可以指定相对目录,只可以对数据卷命名.</p>
+</blockquote>
+<p>当然你可以以只读方式挂载.</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker run -itd -v nginx:/etc/nginx:ro hippo/nginx:v1.10
+b0a67f835eaac812ab37086bef05be6b0726ba080d73113221a5cf8a25bfb513
+[root@srv00 ~]# docker inspect b0a67f835eaac812ab37086bef05be6b0726ba080d73113221a5cf8a25bfb513
+...
+        &quot;Mounts&quot;: [
+            {
+                &quot;Name&quot;: &quot;nginx&quot;,
+                &quot;Source&quot;: &quot;/var/lib/docker/volumes/nginx/_data&quot;,
+                &quot;Destination&quot;: &quot;/etc/nginx&quot;,
+                &quot;Driver&quot;: &quot;local&quot;,
+                &quot;Mode&quot;: &quot;ro&quot;,
+                &quot;RW&quot;: false,
+                &quot;Propagation&quot;: &quot;rprivate&quot;
+            }
+  ...
+</code></pre><h3 id="单独创建数据卷">单独创建数据卷</h3>
+<p>之前都是通过运行容器的同时创建数据卷.当然也可以先创建好数据卷.然后挂载到容器中使用.
+数据卷管理使用<code>docker volume</code>命令.我们看一下刚才创建了哪些数据卷.</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker volume ls
+DRIVER              VOLUME NAME
+local               0159a70ae1a86b5c2947d323b5e6d539101770b66af5cb0ba6d87c12a1c2c742
+local               b6c506a65d5f495ca6ce06aeb30bb6472295d459bfbeb464e89681e17ffe3541
+local               nginx
+[root@srv00 ~]# docker volume inspect 0159a70ae1a86b5c2947d323b5e6d539101770b66af5cb0ba6d87c12a1c2c742
+[
+    {
+        &quot;Name&quot;: &quot;0159a70ae1a86b5c2947d323b5e6d539101770b66af5cb0ba6d87c12a1c2c742&quot;,
+        &quot;Driver&quot;: &quot;local&quot;,
+        &quot;Mountpoint&quot;: &quot;/var/lib/docker/volumes/0159a70ae1a86b5c2947d323b5e6d539101770b66af5cb0ba6d87c12a1c2c742/_data&quot;,
+        &quot;Labels&quot;: null
+    }
+]
+[root@srv00 ~]# docker volume inspect nginx
+[
+    {
+        &quot;Name&quot;: &quot;nginx&quot;,
+        &quot;Driver&quot;: &quot;local&quot;,
+        &quot;Mountpoint&quot;: &quot;/var/lib/docker/volumes/nginx/_data&quot;,
+        &quot;Labels&quot;: null
+    }
+]
+</code></pre><blockquote>
+<p><code>Driver</code>是local,就是映射到本地主机.也可以使用其他驱动.映射到比如iscsi,NFS,FC 等共享磁盘上.</p>
+</blockquote>
+<p>我们来单独创建一个数据卷并使用</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker volume create --name dbdata
+dbdata
+[root@srv00 ~]# docker volume ls
+DRIVER              VOLUME NAME
+local               0159a70ae1a86b5c2947d323b5e6d539101770b66af5cb0ba6d87c12a1c2c742
+local               b6c506a65d5f495ca6ce06aeb30bb6472295d459bfbeb464e89681e17ffe3541
+local               dbdata
+local               nginx
+[root@srv00 ~]# docker volume inspect dbdata
+[
+    {
+        &quot;Name&quot;: &quot;dbdata&quot;,
+        &quot;Driver&quot;: &quot;local&quot;,
+        &quot;Mountpoint&quot;: &quot;/var/lib/docker/volumes/dbdata/_data&quot;,
+        &quot;Labels&quot;: {}
+    }
+]
+[root@srv00 ~]# docker run -itd -v dbdata:/etc/nginx hippo/nginx:v1.10
+</code></pre><h2 id="数据卷容器data-volumns-containers">数据卷容器(Data Volumns containers)</h2>
+<p>我们先创建个数据卷容器.然后运行两个单独的容器,挂载数据卷容器.</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker create -v /opt --name datastore centos
+e5c37981c4f9e16f92b0d5215f5dfa5f79c86282e3018435a5e380350a5cce2c
+[root@srv00 ~]# docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+e5c37981c4f9        centos              &quot;/bin/bash&quot;         11 seconds ago      Created                                 datastore
+[root@srv00 ~]# docker run -itd --volumes-from datastore --name db1 centos
+[root@srv00 ~]# docker run -itd --volumes-from datastore --name db2 centos
+</code></pre><p>看看数据是否互相可访问.</p>
+<pre tabindex="0"><code>[root@srv00 ~]# docker exec -it db1 /bin/bash
+[root@cd8fa62d3b29 ~]# echo &quot;db111111&quot; &gt; /opt/txt
+[root@cd8fa62d3b29 ~]# exit
+exit
+[root@srv00 ~]# docker exec -it db2 /bin/bash
+[root@72c21395c72b /]# cat /opt/txt
+db111111
+[root@72c21395c72b /]# exit
+exit
+[root@srv00 ~]# docker inspect datastore
+[root@srv00 ~]# docker inspect db1
+[root@srv00 ~]# docker inspect db2
+...
+        &quot;Mounts&quot;: [
+            {
+                &quot;Name&quot;: &quot;6b650687d6d2a448006dcb2b966b5f69bb31d34cf3e93f5e3c3460b6fd6eea4a&quot;,
+                &quot;Source&quot;: &quot;/var/lib/docker/volumes/6b650687d6d2a448006dcb2b966b5f69bb31d34cf3e93f5e3c3460b6fd6eea4a/_data&quot;,
+                &quot;Destination&quot;: &quot;/opt&quot;,
+                &quot;Driver&quot;: &quot;local&quot;,
+                &quot;Mode&quot;: &quot;&quot;,
+                &quot;RW&quot;: true,
+                &quot;Propagation&quot;: &quot;&quot;
+            }
+...
+[root@srv00 ~]# docker volume inspect 6b650687d6d2a448006dcb2b966b5f69bb31d34cf3e93f5e3c3460b6fd6eea4a
+[
+    {
+        &quot;Name&quot;: &quot;6b650687d6d2a448006dcb2b966b5f69bb31d34cf3e93f5e3c3460b6fd6eea4a&quot;,
+        &quot;Driver&quot;: &quot;local&quot;,
+        &quot;Mountpoint&quot;: &quot;/var/lib/docker/volumes/6b650687d6d2a448006dcb2b966b5f69bb31d34cf3e93f5e3c3460b6fd6eea4a/_data&quot;,
+        &quot;Labels&quot;: null
+    }
+]
+</code></pre><blockquote>
+<p>几个容器挂在的数据卷都是相同的.内部其实是创建了一个数据卷.
+就算删除所有相关的运行的容器..数据卷不会删除.</p>
+</blockquote>
+<p>//END</p>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://pool.idyi.net/tags/volumns/" rel="tag">volumns</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="Hippo avatar" src="http://pool.idyi.net/img/avatar.jpg" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About Hippo</span>
+	</div>
+	<div class="authorbox__description">
+		Hippo&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+	</div>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="http://pool.idyi.net/docker/docker-network/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">docker的网络</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="http://pool.idyi.net/docker/docker-image-container-storagedriver/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">docker镜像,容器和存储驱动</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hippool" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2021 河马的池塘.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="http://pool.idyi.net/js/menu.js"></script>
+</body>
+</html>

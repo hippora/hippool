@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>tablespace on 河马的池塘</title>
+    <link>http://pool.idyi.net/tags/tablespace/</link>
+    <description>Recent content in tablespace on 河马的池塘</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>cn-zh</language>
+    <copyright>Copyright (c) 2014-2017, Hippo; all rights reserved.</copyright>
+    <lastBuildDate>Fri, 06 Feb 2015 16:07:09 +0800</lastBuildDate><atom:link href="http://pool.idyi.net/tags/tablespace/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>postgresql中表空间管理</title>
+      <link>http://pool.idyi.net/postgres/postgres-tablespace/</link>
+      <pubDate>Fri, 06 Feb 2015 16:07:09 +0800</pubDate>
+      
+      <guid>http://pool.idyi.net/postgres/postgres-tablespace/</guid>
+      <description>&lt;p&gt;表空间作为数据库对象存放的地方,对于数据库来说是个逻辑概念,它是文件系统中一个目录下的多个数据文件组成.
+目录可以不存放在PGDATA下,但是是作为cluster的一个部分,如果备份需要一起备份.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
