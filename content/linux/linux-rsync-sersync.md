@@ -5,7 +5,6 @@ description = ""
 tags = ["rsync","sersync"]
 thumbnail = ""
 title = "rsync+sersync配置"
-
 +++
 
 正好需要用到rsync+sersync.记录一下基本同步配置

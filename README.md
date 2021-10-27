@@ -6,6 +6,6 @@ use hugo
 
 ```
 mkdir themes;cd themes
-git clone https://github.com/vimux/mainroad
+git clone https://github.com/vimux/mainroad themes/mainroad
 ```
 

@@ -27,23 +27,35 @@ paginate = 15
     subtitle = "一些技术笔记" # Subtitle of your site
     description = "河马的笔记"
     opengraph = true
-    leftsidebar = false # Move sidebar to the left side if true
+#    leftsidebar = false # Move sidebar to the left side if true
+    readmore = true # Show "Read more" button in list if true
     authorbox = true
     post_navigation = true
+    toc = true # Enable Table of Contents
+    pager = true # Show pager navigation (prev/next links) at the bottom of pages if true
+    post_meta = ["author", "date", "categories", "translations"] # Order of post meta information
+#    mainSections = ["post", "blog", "news"] # Specify section pages to show on home page and the "Recent articles" widget
+    dateformat = "2006-01-02" # Change the format of dates
 
+[Params.thumbnail]
+    visibility = ["list", "post"] # Control thumbnail visibility
+
+[Params.sidebar]
+    home = "right" # Configure layout for home page
+    list = "left"  # Configure layout for list pages
+    single = false # Configure layout for single pages
+    # Enable widgets in given order
+    widgets = ["search", "recent", "categories", "taglist", "social", "languages"]
+
+[Params.widgets]
+    recent_num = 5 # Set the number of articles in the "Recent articles" widget
+    categories_counter = true # Enable counter for each category in "Categories" widget
+    tags_counter = false # Enable counter for each tag in "Tags" widget
+    
 [[menu.main]]
     name = "ABOUT ME"
     pre = "<i class='fa fa-info-circle'></i>"
     weight = 0
     identifier = "about"
     url = "/about"
-
-[Params.widgets]
-    search = true # Enable "Search" widget
-    recent_articles = true # Enable "Recent articles" widget
-    recent_articles_num = 10 # Set the number of articles in the "Recent articles" widget
-    categories = true # Enable "Categories" widget
-    tags = true # Enable "Tags" widget
-    tags_counter = false # Enable counter for each tag in "Tags" widget (disabled by default)
-
 
